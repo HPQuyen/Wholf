@@ -28,20 +28,20 @@ public class PunEventHandler : MonoBehaviour
     {
         try
         {
-            if(photonEvent.Code < MaxEventID)
+            if (photonEvent.Code < MaxEventID)
+            {
                 eventReceiver[photonEvent.Code].Invoke(photonEvent);
+            }
         }
         catch (Exception exc)
         {
             Debug.LogError("Error: " + exc.Message);
         }
-
     }
     #endregion
     #region Public Methods
     public static void RegisterEvent(byte eventID, Func<object[]> func)
     {
-        Debug.Log("Register Event");
         eventListener.Add(eventID, func);
     }
     public static void RaiseEvent(byte eventID, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)
@@ -54,6 +54,10 @@ public class PunEventHandler : MonoBehaviour
         {
             Debug.LogError("Error: " + exc.Message);
         }
+    }
+    public static void QuickRaiseEvent(byte eventID,object[] data, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)
+    {
+        PhotonNetwork.RaiseEvent(eventID, data, raiseEventOptions, sendOptions);
     }
     public static void RegisterReceiveEvent(byte eventID,Action<EventData> action)
     {

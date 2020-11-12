@@ -1,11 +1,11 @@
-﻿using Photon.Pun;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
 using Photon.Realtime;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using UnityEngine.PlayerLoop;
+
 
 public enum RoleID
 {
@@ -24,12 +24,13 @@ public class ListPlayerController : MonoBehaviour
     #endregion
 
     #region Public Fields
-
+    public Transform[] characterPosition = null;
     #endregion
 
     #region Private Fields
     private Dictionary<int, GameObject> listPlayerObject = new Dictionary<int, GameObject>();
     private Dictionary<int, IRole> listPlayerRole = new Dictionary<int, IRole>();
+    List<object> listPlayerInTurn = new List<object>();
     #endregion
 
     #region Monobehavior Methods
@@ -41,19 +42,25 @@ public class ListPlayerController : MonoBehaviour
     {
         try
         {
-            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            for(int i = 0; i < playersID.Length;i++)
             {
-                GameObject playerObject = null;
-                IRole playerRole = null;
-                if(playersID[i] == PhotonNetwork.PlayerList[i].ActorNumber)
+                for (int j = 0; j < PhotonNetwork.PlayerList.Length; j++)
                 {
-                    InitOnePlayerRole(roleID[i], ref playerObject, ref playerRole);
-                    listPlayerObject.Add(PhotonNetwork.PlayerList[i].ActorNumber, playerObject);
-                    listPlayerRole.Add(PhotonNetwork.PlayerList[i].ActorNumber, playerRole);
-                    if(playersID[i] == PhotonNetwork.LocalPlayer.ActorNumber)
+                    GameObject playerObject = null;
+                    IRole playerRole = null;
+                    if (playersID[i] == PhotonNetwork.PlayerList[j].ActorNumber)
                     {
-                        
-                        PlayerUIController.GetInstance().LoadPlayerUI(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber], roleID[i]);
+                        InitOnePlayerRole(roleID[i], ref playerObject, ref playerRole);
+                        // Load player prefabs from Resources
+                        playerObject = Instantiate(playerObject, characterPosition[j].position, characterPosition[j].rotation);
+                        listPlayerObject.Add(PhotonNetwork.PlayerList[j].ActorNumber, playerObject);
+                        listPlayerRole.Add(PhotonNetwork.PlayerList[j].ActorNumber, playerRole);
+                        // Load RoleUI for local player
+                        if (playersID[i] == PhotonNetwork.LocalPlayer.ActorNumber)
+                        {
+                            PlayerUIController.GetInstance().LoadPlayerUI(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber], roleID[j]);
+                        }
+                        break;
                     }
                 }
             }
@@ -64,9 +71,58 @@ public class ListPlayerController : MonoBehaviour
         {
             Debug.LogError("Error: " + exc.Message);
         }
-
     }
-
+    public void CallRoleWakeUp(RoleID roleID)
+    {
+        Debug.Log(roleID);
+        foreach (var item in listPlayerRole)
+        {
+            if(item.Value.IsMyRole(roleID))
+            {
+                // It is turn of player has that role
+                listPlayerInTurn.Add(item.Key);
+            }
+        }
+        // Raise Event for this player
+        PunEventHandler.QuickRaiseEvent(EventID.RoleAwakeness, listPlayerInTurn.ToArray(), new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+    }
+    
+    public int CountNumberOfRole(RoleID roleID)
+    {
+        int sum = 0;
+        foreach (var item in listPlayerRole)
+        {
+            if (item.Value.IsMyRole(roleID))
+            {
+                sum++;
+            }
+        }
+        return sum;
+    }
+    public void ReceiveRoleWakeUp(int playerID,Action OnAwakeRole)
+    {
+        if(!listPlayerInTurn.Contains(playerID))
+        {
+            listPlayerInTurn.Add(playerID);
+        }
+        if(PhotonNetwork.LocalPlayer.ActorNumber == playerID)
+        {
+            OnAwakeRole.Invoke();
+        }
+    }
+    // Test function callback done role action
+    public void ReceiveRoleActionComplete(int playerID,Action OnDoneInMyTurn)
+    {
+        try
+        {
+            listPlayerInTurn.Remove(playerID);
+            if (listPlayerInTurn.Count <= 0)
+                OnDoneInMyTurn.Invoke();
+        }catch(Exception exc)
+        {
+            Debug.LogError("Error: " + exc.Message);
+        }
+    }
     #endregion
 
     #region Private Methods
@@ -128,7 +184,6 @@ public class ListPlayerController : MonoBehaviour
         {
             Debug.LogError("Error: " + exc.Message);
         }
-
     }
 
     #endregion

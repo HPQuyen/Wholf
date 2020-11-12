@@ -86,27 +86,15 @@ public class Launcher : MonoBehaviourPunCallbacks
         
         for (int i = 0; i < maxPlayerOnRoom; i++)
         {
-
             if (i < PhotonNetwork.PlayerList.Length)
             {
-
-
                 UIcontroller.DisplayNamePlayer(i, PhotonNetwork.PlayerList[i].NickName, PhotonNetwork.PlayerList[i] == PhotonNetwork.LocalPlayer ? Color.red : Color.white);
             }
             else
             {
                 UIcontroller.DisplayNamePlayer(i, "", Color.white);
             }
-
         }
-        foreach(KeyValuePair<int, Player> player in PhotonNetwork.CurrentRoom.Players)
-        {
-            Debug.Log(player.Value);
-            Debug.Log(player.Key);
-        }
-        Debug.Log("My ID: " + PhotonNetwork.LocalPlayer.UserId);
-        Debug.Log("My Actor Number: " + PhotonNetwork.LocalPlayer.ActorNumber);
-
     }
     public override void OnLeftRoom()
     {
