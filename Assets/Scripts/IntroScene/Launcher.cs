@@ -13,7 +13,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     #region Private Fields
     private UIController UIcontroller = null;
     private string roomID = string.Empty;
-    private byte maxPlayerOnRoom = 4;
+    private byte maxPlayerOnRoom = 8;
     #endregion
 
     #region Public Fields

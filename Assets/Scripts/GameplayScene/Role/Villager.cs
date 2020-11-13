@@ -2,7 +2,6 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System;
-using System.Collections;
 using UnityEngine;
 
 public class Villager : MonoBehaviour, IRole
@@ -16,12 +15,24 @@ public class Villager : MonoBehaviour, IRole
     #endregion
 
     #region Private Fields
-    private bool cooldownMyTurn;
+
+    #endregion
+
+    #region MonoFunctions
+    protected virtual void Start() 
+    {
+        sect = Sect.villagers;
+        isKill = false;
+    }
+    protected virtual void Update()
+    {
+
+    }
     #endregion
 
     #region Public Functions
     public virtual void Die() { }
-    public virtual void RoleAction(Action onRoleAction,IRole Target) { }
+    public virtual void RoleAction(Action onRoleAction, IRole Target) { }
     public virtual IRole SetTargetKill() { return null; }
     public virtual Sprite GetSpriteRole()
     {
@@ -35,28 +46,19 @@ public class Villager : MonoBehaviour, IRole
     {
         return roleID == RoleID.villager;
     }
-    public virtual void InMyTurn()
+    public virtual int GetTimeRoleAction()
     {
-        cooldownMyTurn = true;
-        
+        return roleInfo.timeRoleAction;
     }
-    public virtual void CompleteMyTurn()
-    {
-        object[] data = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
-        PunEventHandler.QuickRaiseEvent(EventID.RoleActionComplete, data , new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-    }
-    
     #endregion
 
-    #region MonoFunctions
-    protected virtual void Start() 
+    #region Local Action Event Methods
+
+    public virtual void CompleteMyTurn()
     {
-        sect = Sect.villagers;
-        isKill = false;
-    }
-    protected virtual void Update()
-    {
-        
+        Debug.Log("Complete My Turn Call");
+        object[] data = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+        PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
     }
     #endregion
 }

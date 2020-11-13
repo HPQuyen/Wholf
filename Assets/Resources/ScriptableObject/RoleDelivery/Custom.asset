@@ -15,7 +15,7 @@ MonoBehaviour:
   villager: 0
   seer: 1
   cupid: 1
-  witch: 1
+  witch: 0
   wolf: 1
   guardian: 0
-  hunter: 0
+  hunter: 1

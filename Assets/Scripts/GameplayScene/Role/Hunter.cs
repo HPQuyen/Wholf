@@ -6,6 +6,7 @@ public class Hunter : Villager
 {
     public override bool IsMyRole(RoleID roleID)
     {
+        Debug.Log(roleID);
         return roleID == RoleID.hunter;
     }
 }

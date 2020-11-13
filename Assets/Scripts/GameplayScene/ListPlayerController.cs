@@ -30,7 +30,7 @@ public class ListPlayerController : MonoBehaviour
     #region Private Fields
     private Dictionary<int, GameObject> listPlayerObject = new Dictionary<int, GameObject>();
     private Dictionary<int, IRole> listPlayerRole = new Dictionary<int, IRole>();
-    List<object> listPlayerInTurn = new List<object>();
+    private List<object> listPlayerInTurn = new List<object>();
     #endregion
 
     #region Monobehavior Methods
@@ -38,6 +38,8 @@ public class ListPlayerController : MonoBehaviour
     #endregion
 
     #region Public Methods
+
+        #region Turnbase Mechanism Methods
     public void InitAllPlayerRole(int[] playersID, byte[] roleID, Action onInitializeRole)
     {
         try
@@ -72,33 +74,29 @@ public class ListPlayerController : MonoBehaviour
             Debug.LogError("Error: " + exc.Message);
         }
     }
-    public void CallRoleWakeUp(RoleID roleID)
+    public void CallRoleWakeUp(RoleID roleID,Action onCallRoleWakeUp)
     {
-        Debug.Log(roleID);
+        Debug.Log("Call role: " + roleID);
         foreach (var item in listPlayerRole)
         {
             if(item.Value.IsMyRole(roleID))
             {
+                Debug.Log("My actor ID: " + PhotonNetwork.LocalPlayer.ActorNumber);
+                Debug.Log("ActorID: " + item.Key);
                 // It is turn of player has that role
                 listPlayerInTurn.Add(item.Key);
             }
         }
         // Raise Event for this player
-        PunEventHandler.QuickRaiseEvent(EventID.RoleAwakeness, listPlayerInTurn.ToArray(), new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-    }
-    
-    public int CountNumberOfRole(RoleID roleID)
-    {
-        int sum = 0;
-        foreach (var item in listPlayerRole)
+        if(listPlayerInTurn.Count > 0)
         {
-            if (item.Value.IsMyRole(roleID))
-            {
-                sum++;
-            }
+            PunEventHandler.QuickRaiseEvent(PunEventID.RoleAwakeness, listPlayerInTurn.ToArray(), new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            onCallRoleWakeUp();
         }
-        return sum;
     }
+    #endregion
+
+        #region Pun(Network) Event Methods
     public void ReceiveRoleWakeUp(int playerID,Action OnAwakeRole)
     {
         if(!listPlayerInTurn.Contains(playerID))
@@ -111,17 +109,34 @@ public class ListPlayerController : MonoBehaviour
         }
     }
     // Test function callback done role action
-    public void ReceiveRoleActionComplete(int playerID,Action OnDoneInMyTurn)
+    public void ReceiveCompleteActionRole(int playerID,Action OnCompleteActionRole)
     {
         try
         {
-            listPlayerInTurn.Remove(playerID);
-            if (listPlayerInTurn.Count <= 0)
-                OnDoneInMyTurn.Invoke();
+            foreach (var item in listPlayerInTurn)
+            {
+                Debug.Log("List player in turn: " + item);
+            }
+            if (listPlayerInTurn.Remove(playerID) && listPlayerInTurn.Count <= 0)
+                OnCompleteActionRole.Invoke();
         }catch(Exception exc)
         {
             Debug.LogError("Error: " + exc.Message);
         }
+    }
+    #endregion
+    public int CountNumberOfRole(RoleID roleID)
+    {
+        int sum = 0;
+        foreach (var item in listPlayerRole)
+        {
+            if (item.Value.IsMyRole(roleID))
+            {
+                sum++;
+            }
+        }
+        Debug.Log("Sum " + roleID + ": " + sum);
+        return sum;
     }
     #endregion
 

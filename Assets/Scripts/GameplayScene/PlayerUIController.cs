@@ -4,6 +4,7 @@ using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerUIController : MonoBehaviour
@@ -12,14 +13,18 @@ public class PlayerUIController : MonoBehaviour
     #region Public Fields
     public GameObject[] playerUIPrefab = null;
     #endregion
-    #region
+    #region Private SerializeField
     [SerializeField]
     private GameObject roleDescription;
+    [SerializeField]
+    private TextMeshProUGUI cooldownMyTurn;
     #endregion
     #region Private Fields
     private static PlayerUIController instance = null;
     private IRole playerRole = null;
     private GameObject playerUI;
+    private bool isMyTurn = false;
+    private float cooldownTime;
     #endregion
 
     #region Monobehavior Methods
@@ -29,6 +34,23 @@ public class PlayerUIController : MonoBehaviour
             instance = this;
         else if(instance != this)
             Destroy(this);
+    }
+    private void Start()
+    {
+        ActionEventHandler.AddNewActionEvent(ActionEventID.InMyTurn, InMyTurn);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.CompleteMyTurn, CompleteMyTurn);
+    }
+    private void Update()
+    {
+        if(isMyTurn)
+        {
+            cooldownTime -= Time.deltaTime;
+            if(cooldownTime <= 0)
+            {
+                ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
+            }
+            SetCooldownTime(cooldownTime.ToString("0"));
+        }
     }
     #endregion
 
@@ -40,32 +62,37 @@ public class PlayerUIController : MonoBehaviour
     public void LoadPlayerUI(IRole playerRole,byte roleID)
     {
         this.playerRole = playerRole;
+        ActionEventHandler.AddNewActionEvent(ActionEventID.CompleteMyTurn, playerRole.CompleteMyTurn);
         try
         {
             Debug.Log("Load UI");
+            Debug.Log("My role: " + (RoleID)roleID);
             playerUI = playerUIPrefab[roleID];
+
         }
         catch(Exception exc)
         {
             Debug.LogError("Error: " + exc.Message);
         }
     }
-    public void InMyTurn()
+    public void SetActiveCooldownTime(bool state)
     {
-        Debug.Log("Load ability UI");
-        playerUI.SetActive(true);
-        roleDescription.SetActive(false);
-        
+        cooldownMyTurn.gameObject.SetActive(state);
     }
-    public void CompleteMyTurn()
+    public void SetCooldownTime(String time)
     {
-        playerUI.SetActive(false);
-        roleDescription.SetActive(false);
-        playerRole.CompleteMyTurn();
+        cooldownMyTurn.text = time;
     }
+    #endregion
+
+    #region Button On_Click Methods
     public void OnClick_RoleDescription()
     {
         roleDescription.SetActive(!roleDescription.activeSelf);
+    }
+    public void OnClick_Skip()
+    {
+        ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
     }
         #region Seer
     public void OnClick_SeerAbility()
@@ -111,11 +138,26 @@ public class PlayerUIController : MonoBehaviour
     {
 
     }
-        #endregion
+    #endregion
 
     #endregion
 
-    #region Private Methods
-
+    #region Local Action Event Methods
+    private void InMyTurn()
+    {
+        Debug.Log("In My Turn Load UI");
+        isMyTurn = true;
+        cooldownTime = playerRole.GetTimeRoleAction();
+        playerUI.SetActive(true);
+        roleDescription.SetActive(false);
+        SetActiveCooldownTime(true);
+    }
+    private void CompleteMyTurn()
+    {
+        isMyTurn = false;
+        playerUI.SetActive(false);
+        roleDescription.SetActive(false);
+        SetActiveCooldownTime(false);
+    }
     #endregion
 }

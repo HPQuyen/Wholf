@@ -13,10 +13,11 @@ public interface IRole
     void Die();
     IRole SetTargetKill();
     bool IsMyRole(RoleID roleID);
-    void InMyTurn();
     void CompleteMyTurn();
 
+    #region Getter/Setter
     Sprite GetSpriteRole();
     string GetNameRole();
-
+    int GetTimeRoleAction();
+    #endregion
 }

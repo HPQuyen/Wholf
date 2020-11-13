@@ -47,12 +47,12 @@ public class Moderator : MonoBehaviour
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            PunEventHandler.RegisterEvent(EventID.RoleDelivery, DeliverRole);
-            PunEventHandler.RaiseEvent(EventID.RoleDelivery, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            PunEventHandler.RegisterEvent(PunEventID.RoleDelivery, DeliverRole);
+            PunEventHandler.RaiseEvent(PunEventID.RoleDelivery, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
         }
-        PunEventHandler.RegisterReceiveEvent(EventID.RoleDelivery, ReceiveRole);
-        PunEventHandler.RegisterReceiveEvent(EventID.RoleAwakeness, ReceiveAwakenRole);
-        PunEventHandler.RegisterReceiveEvent(EventID.RoleActionComplete, ReceiveRoleActionComplete);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.RoleDelivery, ReceiveRole);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.RoleAwakeness, ReceiveAwakenRole);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.RoleActionComplete, ReceiveCompleteActionRole);
     }
     // Update is called once per frame
     private void Update()
@@ -72,8 +72,7 @@ public class Moderator : MonoBehaviour
     {
         if(!isPlayerOnAction)
         {
-            isPlayerOnAction = true;
-            listPlayerController.CallRoleWakeUp(this.roleOnAction);
+            listPlayerController.CallRoleWakeUp(this.roleOnAction,() => { isPlayerOnAction = true; } );
         }
     }
     private void Day()
@@ -150,7 +149,7 @@ public class Moderator : MonoBehaviour
           };
         Dictionary<int, byte> playerRolePair = new Dictionary<int, byte>();
         //roleDelivery = Resources.Load<RoleDelivery>("RoleDelivery/Custom");
-        generateRole.Invoke(roleDelivery.villager,playerRolePair,(byte) RoleID.villager);
+        generateRole.Invoke(roleDelivery.villager, playerRolePair,(byte) RoleID.villager);
         generateRole.Invoke(roleDelivery.hunter, playerRolePair, (byte) RoleID.hunter);
         generateRole.Invoke(roleDelivery.witch, playerRolePair, (byte) RoleID.witch);
         generateRole.Invoke(roleDelivery.wolf, playerRolePair, (byte) RoleID.wolf);
@@ -189,19 +188,20 @@ public class Moderator : MonoBehaviour
         foreach (var item in data)
         {
             listPlayerController.ReceiveRoleWakeUp((int) item,() => {
-                PlayerUIController.GetInstance().InMyTurn();
+                Debug.Log("In My Turn");
+                ActionEventHandler.Invoke(ActionEventID.InMyTurn);
             });
         }
     }
-
     // Test function callback done role action
-    private void ReceiveRoleActionComplete(EventData eventData)
+    private void ReceiveCompleteActionRole(EventData eventData)
     {
         object[] data = (object[])eventData.CustomData;
-        listPlayerController.ReceiveRoleActionComplete((int)data[0], () => {
+        Debug.Log("PlayerID: " + (int)data[0] + " call done action");
+        listPlayerController.ReceiveCompleteActionRole((int)data[0], () => {
             // Call this action when all player complete their role action
-            isPlayerOnAction = false;
             ChooseNextActiveRole(this.roleOnAction);
+            isPlayerOnAction = false;
             Debug.Log("Done in my turn");
         });
     }

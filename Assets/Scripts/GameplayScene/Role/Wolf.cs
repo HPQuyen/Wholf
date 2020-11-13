@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
+using System;
 using UnityEngine;
 
 public class Wolf : MonoBehaviour, IRole
@@ -10,6 +13,23 @@ public class Wolf : MonoBehaviour, IRole
     protected RoleInformation roleInfo;
     #endregion
 
+    #region Private Fields
+
+    #endregion
+
+    #region MonoFunctions
+    protected virtual void Start()
+    {
+        sect = Sect.wolves;
+        isKill = false;
+
+    }
+    protected virtual void Update()
+    {
+
+    }
+    #endregion
+
     #region Public Functions
     public virtual void Die() { }
     public virtual void RoleAction(Action onRoleAction, IRole Target) { }
@@ -17,14 +37,6 @@ public class Wolf : MonoBehaviour, IRole
     public virtual bool IsMyRole(RoleID roleID)
     {
         return roleID == RoleID.wolf;
-    }
-    public virtual void InMyTurn()
-    {
-        
-    }
-    public virtual void CompleteMyTurn()
-    {
-
     }
     public virtual Sprite GetSpriteRole()
     {
@@ -34,12 +46,20 @@ public class Wolf : MonoBehaviour, IRole
     {
         return roleInfo.nameRole;
     }
-    #endregion
-
-    #region MonoFunctions
-    protected virtual void Start() {
-        sect = Sect.wolves;
-        isKill = false;
+    public virtual int GetTimeRoleAction()
+    {
+        return roleInfo.timeRoleAction;
     }
     #endregion
+
+    #region Local Action Event Methods
+
+    public virtual void CompleteMyTurn()
+    {
+        object[] data = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+        PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+    }
+    #endregion
+
+
 }
