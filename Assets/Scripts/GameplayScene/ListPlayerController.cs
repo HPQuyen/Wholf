@@ -3,7 +3,6 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
-
 using UnityEngine;
 
 
@@ -24,7 +23,7 @@ public class ListPlayerController : MonoBehaviour
     #endregion
 
     #region Public Fields
-    public Transform[] characterPosition = null;
+    public Transform[] characterSpawnPosition = null;
     #endregion
 
     #region Private Fields
@@ -54,13 +53,14 @@ public class ListPlayerController : MonoBehaviour
                     {
                         InitOnePlayerRole(roleID[i], ref playerObject, ref playerRole);
                         // Load player prefabs from Resources
-                        playerObject = Instantiate(playerObject, characterPosition[j].position, characterPosition[j].rotation);
+                        playerObject = Instantiate(playerObject, characterSpawnPosition[i].position, characterSpawnPosition[i].rotation);
+                        PlayerUIController.GetInstance().LoadPlayerName(i, PhotonNetwork.PlayerList[j].NickName);
                         listPlayerObject.Add(PhotonNetwork.PlayerList[j].ActorNumber, playerObject);
                         listPlayerRole.Add(PhotonNetwork.PlayerList[j].ActorNumber, playerRole);
                         // Load RoleUI for local player
                         if (playersID[i] == PhotonNetwork.LocalPlayer.ActorNumber)
                         {
-                            PlayerUIController.GetInstance().LoadPlayerUI(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber], roleID[j]);
+                            PlayerUIController.GetInstance().LoadPlayerUI(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber], roleID[i]);
                         }
                         break;
                     }
@@ -79,6 +79,7 @@ public class ListPlayerController : MonoBehaviour
         Debug.Log("Call role: " + roleID);
         foreach (var item in listPlayerRole)
         {
+            Debug.Log(item.Key + " " + item.Value);
             if(item.Value.IsMyRole(roleID))
             {
                 Debug.Log("My actor ID: " + PhotonNetwork.LocalPlayer.ActorNumber);
@@ -99,10 +100,6 @@ public class ListPlayerController : MonoBehaviour
         #region Pun(Network) Event Methods
     public void ReceiveRoleWakeUp(int playerID,Action OnAwakeRole)
     {
-        if(!listPlayerInTurn.Contains(playerID))
-        {
-            listPlayerInTurn.Add(playerID);
-        }
         if(PhotonNetwork.LocalPlayer.ActorNumber == playerID)
         {
             OnAwakeRole.Invoke();
@@ -113,11 +110,7 @@ public class ListPlayerController : MonoBehaviour
     {
         try
         {
-            foreach (var item in listPlayerInTurn)
-            {
-                Debug.Log("List player in turn: " + item);
-            }
-            if (listPlayerInTurn.Remove(playerID) && listPlayerInTurn.Count <= 0)
+            if (listPlayerInTurn.Remove(playerID) && listPlayerInTurn.Count <= 0 && PhotonNetwork.IsMasterClient)
                 OnCompleteActionRole.Invoke();
         }catch(Exception exc)
         {

@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameRole: Wolf
   spriteRole: {fileID: 0}
-  timeRoleAction: 60
-  abilitySprite: []
-  abilityDescription: []
+  timeRoleAction: 30
+  spriteAbility: []
+  descriptionAbility: []

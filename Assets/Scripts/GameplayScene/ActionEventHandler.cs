@@ -5,13 +5,18 @@ using UnityEngine.Events;
 
 public enum ActionEventID
 {
+    StartGame,
     InMyTurn,
-    CompleteMyTurn
+    CompleteMyTurn,
+    DaytimeTransition,
+    NighttimeTransition
 }
-public class MyEntityEvent : UnityEvent<IRole> { }
+public class MyRoleEvent : UnityEvent<IRole> { }
 public static class ActionEventHandler
 {
     private static Dictionary<ActionEventID, UnityEvent> listActionEvent = new Dictionary<ActionEventID, UnityEvent>();
+    private static MyRoleEvent roleCastEvent = new MyRoleEvent();
+    
     public static void AddNewActionEvent(ActionEventID eventID,UnityAction callback)
     {
         UnityEvent actionEvent;
@@ -26,6 +31,10 @@ public static class ActionEventHandler
             listActionEvent.Add(eventID, actionEvent);
         }
     }
+    public static void AddNewActionEvent(UnityAction<IRole> actionEvent)
+    {
+        roleCastEvent.AddListener(actionEvent);
+    }
     public static void Invoke(ActionEventID eventID)
     {
         try
@@ -36,7 +45,10 @@ public static class ActionEventHandler
         {
             Debug.LogError("Error: " + exc.Message);
         }
-
+    }
+    public static void Invoke(IRole role)
+    {
+        roleCastEvent.Invoke(role);
     }
     public static void RemoveAction(ActionEventID eventID)
     {
@@ -48,5 +60,9 @@ public static class ActionEventHandler
         {
             Debug.LogError("Error: " + exc.Message);
         }
+    }
+    public static void RemoveAction()
+    {
+        roleCastEvent.RemoveAllListeners();
     }
 }

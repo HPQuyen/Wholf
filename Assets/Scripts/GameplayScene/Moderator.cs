@@ -3,10 +3,10 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using System;
 
+#pragma warning disable 4096
 public class Moderator : MonoBehaviour
 {
     #region Private Fields SerializeField
@@ -14,18 +14,23 @@ public class Moderator : MonoBehaviour
     private RoleDelivery roleDelivery = null;
     [SerializeField]
     private ListPlayerController listPlayerController = null;
+    
     #endregion
 
     #region Private Fields
     private static Moderator instance = null;
-    private bool isDay = false;
-    private bool isSetUpComplete = false;
-    private bool isPlayerOnAction = false;
+    private bool isDayTime;
+    private bool isSetUpComplete;
+    private bool isPlayerOnAction;
     private RoleID roleOnAction = RoleID.wolf;
+    private bool isSecondPassed = true;
+    private float disscustionTime;
+    
+
     #endregion
 
     #region Public Fields
-
+    public float discussionTimeDefault = 20f;
     #endregion
 
     #region MonoFunction
@@ -33,7 +38,6 @@ public class Moderator : MonoBehaviour
     {
         if(instance == null)
         {
-            DontDestroyOnLoad(this);
             instance = this;
         }
         else if(instance != this)
@@ -41,26 +45,45 @@ public class Moderator : MonoBehaviour
             Destroy(this);
         }
     }
-
+    private void StartGame()
+    {
+        disscustionTime = discussionTimeDefault;
+    }
     // Start is called before the first frame update
     private void Start()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            PunEventHandler.RegisterEvent(PunEventID.RoleDelivery, DeliverRole);
-            PunEventHandler.RaiseEvent(PunEventID.RoleDelivery, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            PunEventHandler.QuickRaiseEvent(PunEventID.RoleDelivery, DeliverRole() , new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            PunEventHandler.RegisterEvent(PunEventID.DaytimeTransition, DaytimeTransitionPun);
+            PunEventHandler.RegisterEvent(PunEventID.NighttimeTransition, NighttimeTransitionPun);
         }
+        // Pun Register Event
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleDelivery, ReceiveRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleAwakeness, ReceiveAwakenRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleActionComplete, ReceiveCompleteActionRole);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.DaytimeTransition, ReceiveDaytimeTransition);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.NighttimeTransition, ReceiveNighttimeTransition);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.DiscusstionTimeCountdown, ReceiveDiscussionTimeCountdown);
+
+        // Local Register Event
+        ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, StartGame);
+
+
+        // Invoke Event
+        ActionEventHandler.Invoke(ActionEventID.StartGame);
     }
+
+
     // Update is called once per frame
     private void Update()
     {
         if (isSetUpComplete && PhotonNetwork.IsMasterClient)
         {
-            if (isDay)
-                Day();
+            if (isDayTime)
+                Morning();
             else
                 Night();
         }
@@ -75,9 +98,29 @@ public class Moderator : MonoBehaviour
             listPlayerController.CallRoleWakeUp(this.roleOnAction,() => { isPlayerOnAction = true; } );
         }
     }
-    private void Day()
+    
+    private void Morning()
     {
-        
+        if(isSecondPassed)
+        {
+            isSecondPassed = false;
+            PunEventHandler.QuickRaiseEvent(PunEventID.DiscusstionTimeCountdown, new object[] { disscustionTime }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            StartCoroutine(DiscussionTimeCountdown(() =>
+            {
+                Debug.Log("onOneSecondPassed");
+                disscustionTime -= 1f;
+                if (disscustionTime <= -1f)
+                {
+                    PunEventHandler.RaiseEvent(PunEventID.NighttimeTransition, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+                }
+                isSecondPassed = true;
+            }));
+        }
+    }
+    IEnumerator DiscussionTimeCountdown(Action onOneSecondPassed)
+    {
+        yield return new WaitForSeconds(1f);
+        onOneSecondPassed();
     }
     private void ChooseNextActiveRole(RoleID roleOnAction)
     {
@@ -115,7 +158,7 @@ public class Moderator : MonoBehaviour
                 break;
             case RoleID.witch:
                 this.roleOnAction = RoleID.wolf;
-                isDay = true;
+                PunEventHandler.RaiseEvent(PunEventID.DaytimeTransition, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
                 break;
             default:
                 break;
@@ -123,11 +166,15 @@ public class Moderator : MonoBehaviour
     }
     private bool IsEndGame()
     {
+        if (listPlayerController.CountNumberOfRole(RoleID.villager) <= listPlayerController.CountNumberOfRole(RoleID.wolf))
+        {
+            return true;
+        }
         return false;
     }
     #endregion
 
-    #region Event Handle Methods
+    #region Pun Event Handle Methods
     private object[] DeliverRole()
     {
         Action<byte, Dictionary<int, byte>,byte> generateRole = (byte length, Dictionary<int, byte> playerRole,byte roleID) =>
@@ -148,7 +195,6 @@ public class Moderator : MonoBehaviour
               }
           };
         Dictionary<int, byte> playerRolePair = new Dictionary<int, byte>();
-        //roleDelivery = Resources.Load<RoleDelivery>("RoleDelivery/Custom");
         generateRole.Invoke(roleDelivery.villager, playerRolePair,(byte) RoleID.villager);
         generateRole.Invoke(roleDelivery.hunter, playerRolePair, (byte) RoleID.hunter);
         generateRole.Invoke(roleDelivery.witch, playerRolePair, (byte) RoleID.witch);
@@ -164,6 +210,18 @@ public class Moderator : MonoBehaviour
             content[i+1] = item.Value;
             i += 2;
         }      
+        return content;
+    }
+    private object[] DaytimeTransitionPun()
+    {
+        object[] content = new object[] { 0 };
+        isSetUpComplete = false;
+        return content;
+    }
+    private object[] NighttimeTransitionPun()
+    {
+        object[] content = new object[] { 0 };
+        isSetUpComplete = false;
         return content;
     }
     private void ReceiveRole(EventData photonEvent)
@@ -202,8 +260,41 @@ public class Moderator : MonoBehaviour
             // Call this action when all player complete their role action
             ChooseNextActiveRole(this.roleOnAction);
             isPlayerOnAction = false;
-            Debug.Log("Done in my turn");
         });
     }
+    private void ReceiveDiscussionTimeCountdown(EventData eventData)
+    {
+        Debug.Log("Receive Discussion Time");
+        object[] data = (object[])eventData.CustomData;
+        PlayerUIController.GetInstance().SetCooldownTime(((float) data[0]).ToString("0"));
+    }
+    private void ReceiveDaytimeTransition(EventData eventData)
+    {
+        Debug.Log("Receive DaytimeTransition");
+        ActionEventHandler.Invoke(ActionEventID.DaytimeTransition);
+    }
+    public void ReceiveNighttimeTransition(EventData eventData)
+    {
+        Debug.Log("Receive NighttimeTransition");
+        ActionEventHandler.Invoke(ActionEventID.NighttimeTransition);
+    }
+    #endregion
+
+    #region Local Action Event Methods
+    private void DaytimeTransition()
+    {
+        PlayerUIController.GetInstance().SetActiveCooldownTime(true);
+        isDayTime = true;
+        isSecondPassed = true;
+        isSetUpComplete = true;
+    }
+    private void NighttimeTransition()
+    {
+        PlayerUIController.GetInstance().SetActiveCooldownTime(false);
+        disscustionTime = discussionTimeDefault;
+        isDayTime = false;
+        isSetUpComplete = true;
+    }
+
     #endregion
 }

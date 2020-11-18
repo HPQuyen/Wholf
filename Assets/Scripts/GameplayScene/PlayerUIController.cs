@@ -1,9 +1,4 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
-using Photon.Realtime;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using TMPro;
 using UnityEngine;
 
@@ -15,14 +10,16 @@ public class PlayerUIController : MonoBehaviour
     #endregion
     #region Private SerializeField
     [SerializeField]
-    private GameObject roleDescription;
+    private GameObject roleDescription = null;
     [SerializeField]
-    private TextMeshProUGUI cooldownMyTurn;
+    private TextMeshProUGUI cooldownMyTurn = null;
+    [SerializeField]
+    private TextMeshProUGUI[] displayPlayerName = null;
     #endregion
     #region Private Fields
     private static PlayerUIController instance = null;
     private IRole playerRole = null;
-    private GameObject playerUI;
+    private GameObject playerUI = null;
     private bool isMyTurn = false;
     private float cooldownTime;
     #endregion
@@ -59,6 +56,18 @@ public class PlayerUIController : MonoBehaviour
     {
         return instance;
     }
+    public void LoadPlayerName(int position,String nickName)
+    {
+        try
+        {
+            displayPlayerName[position].text = nickName;
+            displayPlayerName[position].gameObject.SetActive(true);
+        }
+        catch (Exception exc)
+        {
+            Debug.LogError("Error: " + exc.Message);
+        }
+    }
     public void LoadPlayerUI(IRole playerRole,byte roleID)
     {
         this.playerRole = playerRole;
@@ -68,7 +77,6 @@ public class PlayerUIController : MonoBehaviour
             Debug.Log("Load UI");
             Debug.Log("My role: " + (RoleID)roleID);
             playerUI = playerUIPrefab[roleID];
-
         }
         catch(Exception exc)
         {

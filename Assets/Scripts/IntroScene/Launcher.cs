@@ -1,8 +1,7 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
+
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -25,6 +24,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     private void Start()
     {
         PhotonNetwork.GameVersion = "v1.0";
+        PhotonNetwork.KeepAliveInBackground = 300000;
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.AutomaticallySyncScene = true;
         UIcontroller = UIController.GetInstance();
@@ -61,7 +61,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void OnClick_LeaveRoom()
     {
         PhotonNetwork.LeaveRoom();
-        
     }
     public void OnClick_StartGame()
     {
@@ -128,11 +127,6 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
     }
 
-
-    public override void OnJoinedLobby()
-    {
-        Debug.Log("Join Lobby");
-    }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.Log("Failed to create room: " + message);
@@ -148,6 +142,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         Debug.Log(PhotonNetwork.GetPing());
         Debug.Log(PhotonNetwork.Server);
         Debug.Log(PhotonNetwork.ServerAddress);
+        Debug.Log(PhotonNetwork.CloudRegion);
     }
     public override void OnDisconnected(DisconnectCause cause)
     {
