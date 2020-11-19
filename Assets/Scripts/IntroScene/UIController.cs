@@ -31,8 +31,10 @@ public class UIController : MonoBehaviour
     private TMP_InputField namePlayer_Input = null;
     [SerializeField]
     private TMP_InputField roomID_Input = null;
+    [SerializeField]
+    private GameObject panelSettings = null;
     #endregion
-
+    
 
     #region Private Fields
     private static UIController instance = null;
@@ -113,6 +115,13 @@ public class UIController : MonoBehaviour
         SetActivePanelLobby(false);
         SetActivePanelMenu(true);
         SetActiveStartButton(false);
-    }    
+    }
+
+
+    public void OnClick_Setting()
+    {
+        panelSettings.SetActive(!panelSettings.activeSelf);
+    }
+
     #endregion
 }
