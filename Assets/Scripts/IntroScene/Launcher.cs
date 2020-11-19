@@ -38,7 +38,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     #region Public Methods
     public void OnClick_HostRoom()
     {
-        if(!PhotonNetwork.IsConnectedAndReady)
+        if (!PhotonNetwork.IsConnectedAndReady)
             return;
         roomID = Random.Range(1000000000, int.MaxValue).ToString();
         RoomOptions roomOption = new RoomOptions
@@ -49,7 +49,7 @@ public class Launcher : MonoBehaviourPunCallbacks
             PublishUserId = true
         };
         PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
-        PhotonNetwork.CreateRoom(roomID,roomOption);
+        PhotonNetwork.CreateRoom(roomID, roomOption);
     }
     public void OnClick_JoinRoom()
     {
@@ -57,6 +57,11 @@ public class Launcher : MonoBehaviourPunCallbacks
             return;
         PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
         PhotonNetwork.JoinRoom(UIcontroller.GetRoomID());
+    }
+
+    public void OnClick_Settings()
+    {
+        UIController.GetInstance().OnClick_Setting();
     }
     public void OnClick_LeaveRoom()
     {
@@ -67,6 +72,11 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.IsOpen = false;
         if (PhotonNetwork.IsMasterClient)
             PhotonNetwork.LoadLevel("GameplayScene");
+    }
+
+    public void OnClick_Exit()
+    {
+        Application.Quit();
     }
     #endregion
 
