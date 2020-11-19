@@ -16,7 +16,7 @@ public static class ActionEventHandler
 {
     private static Dictionary<ActionEventID, UnityEvent> listActionEvent = new Dictionary<ActionEventID, UnityEvent>();
     private static MyRoleEvent roleCastEvent = new MyRoleEvent();
-    
+
     public static void AddNewActionEvent(ActionEventID eventID,UnityAction callback)
     {
         UnityEvent actionEvent;

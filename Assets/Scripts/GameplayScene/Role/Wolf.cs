@@ -9,6 +9,8 @@ public class Wolf : MonoBehaviour, IRole
     #region Protected Fields
     protected Sect sect;
     protected bool isKill;
+    protected int playerID;
+    protected IRole target;
     [SerializeField]
     protected RoleInformation roleInfo;
     #endregion
@@ -27,6 +29,11 @@ public class Wolf : MonoBehaviour, IRole
     protected virtual void Update()
     {
 
+    }
+
+    public virtual void OnMouseDown()
+    {
+        ActionEventHandler.Invoke(this);
     }
     #endregion
 
@@ -50,13 +57,41 @@ public class Wolf : MonoBehaviour, IRole
     {
         return roleInfo.timeRoleAction;
     }
+    public virtual void SetKilledTarget()
+    {
+        isKill = true;
+    }
+    public virtual void CastAbility(IRole opponent, byte typeAbility)
+    {
+        // If need, call effect.
+        target = opponent;
+        ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
+    }
+    public virtual int GetPlayerID()
+    {
+        return playerID;
+    }
+    public virtual RoleID GetRoleID()
+    {
+        return RoleID.wolf;
+    }
+
     #endregion
 
     #region Local Action Event Methods
 
     public virtual void CompleteMyTurn()
     {
-        object[] data = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+        object[] data;
+        // Debug.Log("Complete My Turn Call");
+        if (target == null)
+        {
+            data = new object[] { null, this.playerID };
+        }
+        else
+        {
+            data = new object[] { this.GetRoleID(), this.playerID, target.GetPlayerID(), -1 };
+        }
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
     }
     #endregion

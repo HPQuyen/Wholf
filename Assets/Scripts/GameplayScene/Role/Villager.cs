@@ -9,6 +9,7 @@ public class Villager : MonoBehaviour, IRole
 
     #region Protected Fields
     protected Sect sect;
+    protected int playerID;
     protected bool isKill;
     [SerializeField]
     protected RoleInformation roleInfo;
@@ -27,6 +28,11 @@ public class Villager : MonoBehaviour, IRole
     protected virtual void Update()
     {
 
+    }
+
+    public virtual void OnMouseDown()
+    {
+        ActionEventHandler.Invoke(this);
     }
     #endregion
 
@@ -50,15 +56,24 @@ public class Villager : MonoBehaviour, IRole
     {
         return roleInfo.timeRoleAction;
     }
+    public virtual void CastAbility(IRole opponent, byte typeAbility) {}
+    public virtual void SetKilledTarget()
+    {
+        isKill = true;
+    }
+    public virtual int GetPlayerID()
+    {
+        return playerID;
+    }
+    public virtual RoleID GetRoleID()
+    {
+        return RoleID.villager;
+    }
+
     #endregion
 
     #region Local Action Event Methods
 
-    public virtual void CompleteMyTurn()
-    {
-        Debug.Log("Complete My Turn Call");
-        object[] data = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
-        PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-    }
+    public virtual void CompleteMyTurn(){}
     #endregion
 }

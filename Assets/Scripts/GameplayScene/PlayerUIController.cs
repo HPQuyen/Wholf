@@ -105,46 +105,61 @@ public class PlayerUIController : MonoBehaviour
         #region Seer
     public void OnClick_SeerAbility()
     {
-        
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
+
         #endregion
 
         #region Hunter
     public void OnClick_HunterAbility()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
         #endregion
 
         #region Witch
     public void OnClick_WitchAbilityKill()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
-    public void OnClick_WitchAbilitySave()
+    public void OnClick_WitchAbilityRescue()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 1);
+        });
     }
         #endregion
 
         #region Cupid
     public void OnClick_CupidAbility()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
         #endregion
 
         #region Wolf
     public void OnClick_WolfAbility()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
         #endregion
 
         #region Guardian
     public void OnClick_GuardianAbility()
     {
-
+        ActionEventHandler.AddNewActionEvent((IRole obj) => {
+            playerRole.CastAbility(obj, 0);
+        });
     }
     #endregion
 
