@@ -38,12 +38,13 @@ public class Settings : MonoBehaviour
         {
             filteredResolutions.Add(resolutions[i]);
         }
-
+        
         filteredResolutions.RemoveWhere(IsUnsuitableRefreshFrame);
         filteredResolutions.RemoveWhere(IsUnsuitableResolution);
+        Debug.Log("Resolution.Count: " + resolutions.Length);
 
         resolutions = new Resolution[filteredResolutions.Count];
-
+        Debug.Log("Resolution: " + filteredResolutions.Count);
         filteredResolutions.CopyTo(resolutions);
 
         currentResolutionIndex = PlayerPrefs.GetInt(RESOLUTION_PREF_KEY, 0);
@@ -54,9 +55,20 @@ public class Settings : MonoBehaviour
     #region Support Methods/Predicates
     private bool IsUnsuitableRefreshFrame(Resolution resolution)
     {
-        if (resolution.refreshRate < 60)
+        if (resolution.refreshRate < 40)
         {
             return true;
+        }
+        else
+        {
+            foreach (var item in resolutions)
+            {
+                if(resolution.width == item.width && resolution.height == item.height)
+                {
+                    if (resolution.refreshRate < item.refreshRate)
+                        return true;
+                }
+            }
         }
         return false;  
     }

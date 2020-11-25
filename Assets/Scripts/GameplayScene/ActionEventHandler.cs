@@ -9,7 +9,10 @@ public enum ActionEventID
     InMyTurn,
     CompleteMyTurn,
     DaytimeTransition,
-    NighttimeTransition
+    NighttimeTransition,
+    MasterClientDisconnect,
+    AfterMyDeath,
+    EndGame
 }
 public class MyRoleEvent : UnityEvent<IRole> { }
 public static class ActionEventHandler
@@ -43,6 +46,7 @@ public static class ActionEventHandler
         }
         catch (Exception exc)
         {
+            Debug.LogError(eventID);
             Debug.LogError("Error: " + exc.Message);
         }
     }
@@ -63,6 +67,11 @@ public static class ActionEventHandler
     }
     public static void RemoveAction()
     {
+        roleCastEvent.RemoveAllListeners();
+    }
+    public static void RemoveAllAction()
+    {
+        listActionEvent.Clear();
         roleCastEvent.RemoveAllListeners();
     }
 }

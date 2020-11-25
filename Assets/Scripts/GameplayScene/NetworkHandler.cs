@@ -5,16 +5,21 @@ using UnityEngine.SceneManagement;
 public class NetworkHandler : MonoBehaviourPunCallbacks
 {
 
-
+    private void Start()
+    {
+        ActionEventHandler.AddNewActionEvent(ActionEventID.MasterClientDisconnect, MasterClientDisconnect);
+    }
+    public void MasterClientDisconnect()
+    {
+        ActionEventHandler.RemoveAllAction();
+        PunEventHandler.RemoveAllEvent();
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene("IntroScene");
+    }
     #region Monobehaviour Pun Callbacks
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
-        PhotonNetwork.Disconnect();
-        SceneManager.LoadScene("IntroScene");
-    }
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        
+        ActionEventHandler.Invoke(ActionEventID.MasterClientDisconnect);
     }
     #endregion
 }

@@ -1011,7 +1011,7 @@ namespace Photon.Pun
             photonViewList.Add(netView.ViewID, netView);
 
             //Debug.LogError("view being added. " + netView);	// Exit Games internal log
-
+            
             if (PhotonNetwork.LogLevel >= PunLogLevel.Full)
             {
                 Debug.Log("Registered PhotonView: " + netView.ViewID);

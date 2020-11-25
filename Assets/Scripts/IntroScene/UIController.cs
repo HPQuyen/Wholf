@@ -102,12 +102,14 @@ public class UIController : MonoBehaviour
         SetActivePanelMenu(false);
         SetActivePanelLobby(true);
         SetActiveStartButton(true);
+        panelSettings.SetActive(false);
         DisplayRoomID(roomID);
     }
     public void OnJoinRoom()
     {
         SetActivePanelMenu(false);
         SetActivePanelLobby(true);
+        panelSettings.SetActive(false);
         DisplayRoomID(GetRoomID());
     }
     public void OnLeaveRoom()
@@ -115,6 +117,7 @@ public class UIController : MonoBehaviour
         SetActivePanelLobby(false);
         SetActivePanelMenu(true);
         SetActiveStartButton(false);
+        panelSettings.SetActive(false);
     }
 
 

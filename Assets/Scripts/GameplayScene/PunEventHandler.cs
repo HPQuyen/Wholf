@@ -35,7 +35,7 @@ public class PunEventHandler : MonoBehaviour
         }
         catch (Exception exc)
         {
-            Debug.LogError("Error: " + exc.Message);
+            Debug.LogError("Error: " + exc.Message +", photonEvent Code: " + photonEvent.Code);
         }
     }
     #endregion
@@ -62,6 +62,11 @@ public class PunEventHandler : MonoBehaviour
     public static void RegisterReceiveEvent(byte eventID,Action<EventData> action)
     {
         eventReceiver.Add(eventID, action);
+    }
+    public static void RemoveAllEvent()
+    {
+        eventReceiver.Clear();
+        eventListener.Clear();
     }
     #endregion
 }

@@ -81,7 +81,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     #endregion
 
     #region Public Photon Callback
-
     public override void OnCreatedRoom()
     {
         Debug.Log("Create room");
@@ -157,6 +156,11 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.Log("Disconnected: " + cause);
+        PhotonNetwork.GameVersion = "v1.0";
+        PhotonNetwork.KeepAliveInBackground = 300000;
+        PhotonNetwork.ConnectUsingSettings();
+        PhotonNetwork.AutomaticallySyncScene = true;
+        UIcontroller = UIController.GetInstance();
     }
 
     #endregion

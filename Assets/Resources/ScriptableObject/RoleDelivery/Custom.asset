@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4166a542f6794a4f8140a89884caab8, type: 3}
   m_Name: Custom
   m_EditorClassIdentifier: 
-  villager: 0
+  villager: 1
   seer: 1
-  cupid: 0
-  witch: 0
+  cupid: 1
+  witch: 1
   wolf: 1
   guardian: 0
   hunter: 0
