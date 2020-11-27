@@ -10,6 +10,7 @@ public class Seer : Villager
     {
         target = null;
         roleID = RoleID.seer;
+        sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
     }
     public override bool IsMyRole(RoleID roleID)

@@ -11,6 +11,7 @@ public class PunEventHandler : MonoBehaviour
     private static Dictionary<byte, Func<object[]>> eventListener = new Dictionary<byte, Func<object[]>>();
     private static Dictionary<byte, Action<EventData>> eventReceiver = new Dictionary<byte, Action<EventData>>();
     private const byte MaxEventID = 200;
+    
     #endregion
 
     #region Monobehavior Methods
@@ -52,7 +53,7 @@ public class PunEventHandler : MonoBehaviour
         }
         catch (Exception exc)
         {
-            Debug.LogError("Error: " + exc.Message);
+            Debug.LogError("Error: " + exc.Message + ", event ID: " + eventID);
         }
     }
     public static void QuickRaiseEvent(byte eventID,object[] data, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)

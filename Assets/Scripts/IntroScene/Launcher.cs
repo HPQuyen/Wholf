@@ -38,6 +38,9 @@ public class Launcher : MonoBehaviourPunCallbacks
     #region Public Methods
     public void OnClick_HostRoom()
     {
+        if (UIcontroller.GetNamePlayer() == "")
+            return;
+
         if (!PhotonNetwork.IsConnectedAndReady)
             return;
         roomID = Random.Range(1000000000, int.MaxValue).ToString();
@@ -53,6 +56,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnClick_JoinRoom()
     {
+        if (UIcontroller.GetNamePlayer() == "")
+            return;
         if (!PhotonNetwork.IsConnectedAndReady)
             return;
         PhotonNetwork.NickName = UIcontroller.GetNamePlayer();

@@ -45,6 +45,6 @@ public class AnimationHandler : MonoBehaviour
     }
     public void Die()
     {
-        anim.SetBool("IsDie", true);
+        anim.Play("Die",-1,0f);
     }
 }

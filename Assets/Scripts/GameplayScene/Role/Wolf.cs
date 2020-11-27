@@ -69,6 +69,7 @@ public class Wolf : MonoBehaviour, IRole
     public virtual void MyDeath()
     {
         animHandler.Die();
+        this.enabled = false;
     }
     public virtual bool IsMyRole(RoleID roleID)
     {
@@ -83,24 +84,30 @@ public class Wolf : MonoBehaviour, IRole
     }
     public virtual void ReceiveCastAbility(object[] data)
     {
-        timesActivation++;
-        if(data[2] == null)
+        if(PhotonNetwork.IsMasterClient)
         {
-            return;
-        }
-        int opponentID = (int) data[2];
-        IRole target = ListPlayerController.GetInstance().GetRole(opponentID);
-        this.target.Add(target);
-        if (ListPlayerController.GetInstance().CountNumberOfRole(RoleID.wolf) % timesActivation == 0 && timesActivation > 0)
-        {
-            timesActivation = 0;
-            if(this.target.Count > 0)
+            timesActivation++;
+            if (data[2] != null)
             {
-                this.target[new System.Random().Next(0, this.target.Count)].SetIsKill(true);
+                this.target.Add(ListPlayerController.GetInstance().GetRole((int)data[2]));
+            }
+            if (timesActivation == ListPlayerController.GetInstance().CountNumberOfRole(RoleID.wolf))
+            {
+                timesActivation = 0;
+                object[] content;
+                if (this.target.Count == 0)
+                    content = new object[] { null };
+                else
+                    content = new object[] { this.target[new System.Random().Next(0, this.target.Count)].GetPlayerID() };
                 this.target.Clear();
+                PunEventHandler.QuickRaiseEvent(PunEventID.AfterWolfHunt, content , new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
             }
         }
+        if (data[2] == null)
+            return;
         // call update UI affect
+        int opponentID = (int)data[2];
+        IRole target = ListPlayerController.GetInstance().GetRole(opponentID);
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
         if (myRole != null && myRole.IsMyRole(RoleID.wolf))
         {
@@ -174,7 +181,7 @@ public class Wolf : MonoBehaviour, IRole
         else
         {
             data = new object[] { this.GetRoleID(), this.playerID, target[target.Count - 1].GetPlayerID() };
-            target.RemoveAt(target.Count - 1);
+            target.Clear();
         }
         animHandler.CompleteMyTurn();
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);

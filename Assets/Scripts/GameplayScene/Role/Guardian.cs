@@ -12,6 +12,7 @@ public class Guardian : Villager
         target = null;
         previousTarget = null;
         roleID = RoleID.guardian;
+        sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
     }
     public override bool IsMyRole(RoleID roleID)

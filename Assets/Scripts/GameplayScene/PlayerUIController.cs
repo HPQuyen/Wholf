@@ -1,4 +1,6 @@
-﻿using Photon.Pun;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -16,9 +18,9 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField]
     private GameObject roleDescription = null;
     [SerializeField]
-    private TextMeshProUGUI cooldownMyTurn = null;
+    private TextMeshProUGUI cooldownMyTurn_Text = null;
     [SerializeField]
-    private TextMeshProUGUI[] displayPlayerName = null;
+    private Nameboard[] nameBoard = null;
     [SerializeField]
     private GameObject cancelPanel = null;
     [SerializeField]
@@ -26,16 +28,18 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField]
     private Affection[] panelAffection = null;
     [SerializeField]
-    private TextMeshProUGUI notification = null;
+    private TextMeshProUGUI notification_Text = null;
     #endregion
     #region Private Fields
     private static PlayerUIController instance = null;
     private ListPlayerController listPlayerController = null;
     private GameObject playerUI = null;
     private IRole playerRole = null;
-    private bool isMyTurn = false;
+    private bool isMyAbilityTurn = false;
+    private bool isVoteTurn = false;
     private float cooldownTime;
     private Dictionary<int, Affection> mapPanelAffection = new Dictionary<int, Affection>();
+    private Dictionary<int, int> mapNameBoard = new Dictionary<int, int>();
     #endregion
 
     #region Monobehavior Methods
@@ -52,10 +56,13 @@ public class PlayerUIController : MonoBehaviour
         ActionEventHandler.AddNewActionEvent(ActionEventID.InMyTurn, InMyTurn);
         ActionEventHandler.AddNewActionEvent(ActionEventID.CompleteMyTurn, CompleteMyTurn);
         ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.InVoteTurn, InVoteTurn);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.CompleteVoteTurn, CompleteVoteTurn);
     }
     private void Update()
     {
-        if(isMyTurn)
+        if(isMyAbilityTurn)
         {
             cooldownTime -= Time.deltaTime;
             if(cooldownTime <= 0)
@@ -72,12 +79,13 @@ public class PlayerUIController : MonoBehaviour
     {
         return instance;
     }
-    public void LoadPlayerName(int position,String nickName,int playerID)
+    public void LoadPlayerName(int position,string nickName,int playerID)
     {
         try
         {
-            displayPlayerName[position].text = nickName;
-            displayPlayerName[position].gameObject.SetActive(true);
+            mapNameBoard.Add(playerID, position);
+            nameBoard[position].gameObject.SetActive(true);
+            nameBoard[position].AddName(nickName, PhotonNetwork.LocalPlayer.ActorNumber == playerID);
         }
         catch (Exception exc)
         {
@@ -94,6 +102,7 @@ public class PlayerUIController : MonoBehaviour
             Debug.Log("Load UI");
             Debug.Log("My role: " + (RoleID)roleID);
             playerUI = playerUIPrefab[roleID];
+            playerUI.SetActive(true);
         }
         catch(Exception exc)
         {
@@ -102,15 +111,15 @@ public class PlayerUIController : MonoBehaviour
     }
     public void RoleActionNotification(string notice)
     {
-        notification.text = notice;
+        notification_Text.text = notice;
     }
     public void SetActiveCooldownTime(bool state)
     {
-        cooldownMyTurn.gameObject.SetActive(state);
+        cooldownMyTurn_Text.gameObject.SetActive(state);
     }
     public void SetCooldownTime(String time)
     {
-        cooldownMyTurn.text = time;
+        cooldownMyTurn_Text.text = time;
     }
 
     public void AddRoleAffection(RoleID roleID, int playerID,PotionType type = PotionType.kill)
@@ -144,11 +153,23 @@ public class PlayerUIController : MonoBehaviour
             Debug.LogError("Error: " + exc.Message);
         }
     }
+    public void VoteCountDisplay(int playerID,int amount)
+    {
+        try
+        {
+            nameBoard[mapNameBoard[playerID]].Vote(amount);
+        }
+        catch (Exception)
+        {
+
+        }
+    }    
     public void RoleCastAction()
     {
         playerUI.SetActive(false);
         cancelPanel.SetActive(true);
     }
+    
     #endregion
 
     #region Button On_Click Methods
@@ -165,11 +186,27 @@ public class PlayerUIController : MonoBehaviour
     }
     public void OnClick_Skip()
     {
-        ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
+        if (isMyAbilityTurn)
+            ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
+        else if (isVoteTurn)
+            ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
+    }
+    public void OnClick_Vote()
+    {
+        if (!isVoteTurn)
+            return;
+        RoleCastAction();
+        listPlayerController.SetAllSelectable(true);
+        ActionEventHandler.AddNewActionEvent((IRole player) => {
+            ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
+            PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveVote, new object[] { player.GetPlayerID() },new RaiseEventOptions() { Receivers = ReceiverGroup.All},SendOptions.SendReliable);
+        });
     }
         #region Seer
     public void OnClick_SeerAbility()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(playerRole.GetPlayerID(),true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
@@ -183,6 +220,8 @@ public class PlayerUIController : MonoBehaviour
         #region Hunter
     public void OnClick_HunterAbility()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(playerRole.GetPlayerID(), true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
@@ -194,6 +233,8 @@ public class PlayerUIController : MonoBehaviour
         #region Witch
     public void OnClick_WitchAbilityKill()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
 
         listPlayerController.SetAllSelectable(playerRole.GetPlayerID(), true);
@@ -205,6 +246,8 @@ public class PlayerUIController : MonoBehaviour
     }
     public void OnClick_WitchAbilityRescue()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(listPlayerController.GetListPlayerSurvivor(),true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
@@ -218,6 +261,8 @@ public class PlayerUIController : MonoBehaviour
         #region Cupid
     public void OnClick_CupidAbility()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
@@ -229,6 +274,8 @@ public class PlayerUIController : MonoBehaviour
         #region Wolf
     public void OnClick_WolfAbility()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
@@ -240,6 +287,8 @@ public class PlayerUIController : MonoBehaviour
         #region Guardian
     public void OnClick_GuardianAbility()
     {
+        if (!isMyAbilityTurn)
+            return;
         RoleCastAction();
         if (playerRole.GetTarget() != null)
             listPlayerController.SetAllSelectable(playerRole.GetTarget().GetPlayerID(), true);
@@ -257,20 +306,32 @@ public class PlayerUIController : MonoBehaviour
     private void InMyTurn()
     {
         Debug.Log("In My Turn Load UI");
-        isMyTurn = true;
         cooldownTime = playerRole.GetTimeRoleAction();
-        playerUI.SetActive(true);
         roleDescription.SetActive(false);
         SetActiveCooldownTime(true);
+        isMyAbilityTurn = true;
     }
     private void CompleteMyTurn()
     {
-        isMyTurn = false;
+        isMyAbilityTurn = false;
         listPlayerController.SetAllSelectable(false);
         cancelPanel.SetActive(false);
-        playerUI.SetActive(false);
+        playerUI.SetActive(true);
         SetActiveCooldownTime(false);
         roleDescription.SetActive(false);
+        ActionEventHandler.RemoveAction();
+    }
+    private void InVoteTurn()
+    {
+        if(!playerRole.GetIsKill())
+            isVoteTurn = true;
+    }
+    private void CompleteVoteTurn()
+    {
+        isVoteTurn = false;
+        cancelPanel.SetActive(false);
+        playerUI.SetActive(true);
+        listPlayerController.SetAllSelectable(false);
         ActionEventHandler.RemoveAction();
     }
     public void NighttimeTransition()
@@ -280,13 +341,19 @@ public class PlayerUIController : MonoBehaviour
             item.Value.ResetAffection();
         }
         mapPanelAffection.Clear();
+        foreach (var item in mapNameBoard)
+        {
+            nameBoard[item.Value].ResetVote();
+        }
         SetActiveCooldownTime(false);
+        ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
         RoleActionNotification("Night Time");
     }
     public void DaytimeTransition()
     {
         SetActiveCooldownTime(true);
-        RoleActionNotification("Morning Time");
+        ActionEventHandler.Invoke(ActionEventID.InVoteTurn);
+        RoleActionNotification("Morning Time"); 
     }
     #endregion
 }

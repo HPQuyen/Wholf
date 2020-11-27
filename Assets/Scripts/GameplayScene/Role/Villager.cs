@@ -71,6 +71,7 @@ public class Villager : MonoBehaviour, IRole
     public virtual void MyDeath()
     {
         animHandler.Die();
+        this.enabled = false;
     }
     public virtual void CastAbility(IRole opponent, PotionType type) { }
     public virtual void ReceiveCastAbility(object[] data) { }

@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -30,6 +31,7 @@ public class ListPlayerController : MonoBehaviour
     private static ListPlayerController instance = null;
     private Dictionary<int, GameObject> listPlayerObject = new Dictionary<int, GameObject>();
     private Dictionary<int, IRole> listPlayerRole = new Dictionary<int, IRole>();
+    private Dictionary<int, int> listVoteBallot = new Dictionary<int, int>();
     private List<object> listPlayerInTurn = new List<object>();
     #endregion
 
@@ -93,19 +95,39 @@ public class ListPlayerController : MonoBehaviour
             {
                 Debug.Log("My actor ID: " + PhotonNetwork.LocalPlayer.ActorNumber);
                 Debug.Log("ActorID: " + item.Key);
-                // It is turn of player has that role
+                // It is turn of players have that role
                 listPlayerInTurn.Add(item.Key);
             }
         }
-        // Raise Event for this player
+        // Raise Event for other players
         if(listPlayerInTurn.Count > 0)
         {
             PunEventHandler.QuickRaiseEvent(PunEventID.RoleAwakeness, listPlayerInTurn.ToArray(), new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
             onCallRoleWakeUp();
         }
     }
-    public object[] GetDeathPlayer()
+    public object[] GetDeathPlayer(bool byVote = false)
     {
+        // Get death player by vote
+        if(byVote)
+        {
+            if (listVoteBallot.Count == 0)
+                return null;
+            int playerID = listVoteBallot.Aggregate((x,y) => { return x.Value > y.Value ? x : y; }).Key;
+            bool doubleMaxVote = false;
+            foreach (var item in listVoteBallot)
+            {
+                if(playerID != item.Key && listVoteBallot[playerID] == item.Value)
+                {
+                    doubleMaxVote = true;
+                }
+            }
+            if (!doubleMaxVote)
+                listPlayerRole[playerID].SetIsKill(true);
+            else
+                return null;
+        }
+        // Get death player by role cast ability
         List<object> listDeathPlayer = new List<object>();
         foreach (var item in listPlayerRole)
         {
@@ -133,18 +155,31 @@ public class ListPlayerController : MonoBehaviour
                 foreach (var item in data)
                 {
                     playerID = (int)item;
+                    if (playerID == PhotonNetwork.LocalPlayer.ActorNumber)
+                        ActionEventHandler.Invoke(ActionEventID.AfterMyDeath);
                     listPlayerRole[playerID].MyDeath();
                     listPlayerRole.Remove(playerID);
-                    Destroy(listPlayerObject[playerID]);
                     listPlayerObject.Remove(playerID);
                 }
             }
-            catch (Exception exc)
+            catch (Exception)
             {
-                Debug.LogError("Error: " + exc.Message);
+                //Debug.LogError("Error: " + exc.Message);
             }
         }
+        listVoteBallot.Clear();
         onRemoveDeathPlayer();
+    }
+    public void RemoveDeathPlayer(int playerID)
+    {
+        try
+        {
+            listPlayerRole.Remove(playerID);
+        }
+        catch (Exception exc)
+        {
+            Debug.Log("Error: " + exc.Message);
+        }
     }
     #endregion
     public void SetAllSelectable(List<int> exceptID,bool state)
@@ -250,7 +285,7 @@ public class ListPlayerController : MonoBehaviour
     {
         try
         {
-            PlayerUIController.GetInstance().RoleActionNotification(listPlayerRole[playerID].GetNameRole());
+            PlayerUIController.GetInstance().RoleActionNotification(listPlayerRole[playerID].GetNameRole() + "'s Turn");
         }
         catch (Exception exc)
         {
@@ -261,7 +296,7 @@ public class ListPlayerController : MonoBehaviour
             OnAwakeRole.Invoke();
         }
     }
-    // Test function callback done role action
+    // Function callback when player done action
     public void ReceiveCompleteActionRole(object[] data, Action OnCompleteActionRole)
     {
         int playerID = (int) data[1];
@@ -269,12 +304,37 @@ public class ListPlayerController : MonoBehaviour
         {
             if (data[0] != null)
                 listPlayerRole[playerID].ReceiveCastAbility(data);
-            if (PhotonNetwork.IsMasterClient && listPlayerInTurn.Remove(playerID) && listPlayerInTurn.Count <= 0)
+            if (PhotonNetwork.IsMasterClient && listPlayerInTurn.Remove(playerID) && listPlayerInTurn.Count <= 0 && !listPlayerRole[playerID].IsMyRole(RoleID.wolf))
                 OnCompleteActionRole.Invoke();
         }catch(Exception exc)
         {
             Debug.LogError("Error: " + exc.Message);
         }
+    }
+    // Special function callback when player done action (only for wolf) 
+    public void ReceiveAfterWolfHunt(object[] data, Action OnCompleteActionRole)
+    {
+        if (data[0] != null)
+        {
+            IRole target = GetRole((int)data[0]);
+            if(target != null)
+                target.SetIsKill(true);
+        }
+        if(PhotonNetwork.IsMasterClient)
+            OnCompleteActionRole.Invoke();
+    }
+    public void ReceiveVote(object[] data)
+    {
+        int playerID = (int)data[0];
+        if(listVoteBallot.ContainsKey(playerID))
+        {
+            listVoteBallot[playerID]++;
+        }
+        else
+        {
+            listVoteBallot.Add(playerID, 1);
+        }
+        PlayerUIController.GetInstance().VoteCountDisplay(playerID, listVoteBallot[playerID]);
     }
     #endregion
 

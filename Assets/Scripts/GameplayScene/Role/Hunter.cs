@@ -12,6 +12,7 @@ public class Hunter : Villager
     {
         target = null;
         roleID = RoleID.hunter;
+        sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
     }
     public override bool IsMyRole(RoleID roleID)
@@ -39,7 +40,7 @@ public class Hunter : Villager
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
         // call update UI affection
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (myRole != null && myRole.GetPlayerID() == target.GetPlayerID())
+        if (myRole != null && myRole.IsMyRole(RoleID.hunter))
         {
             PlayerUIController.GetInstance().AddRoleAffection(RoleID.hunter, target.GetPlayerID());
         }

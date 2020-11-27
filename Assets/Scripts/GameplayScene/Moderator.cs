@@ -59,15 +59,19 @@ public class Moderator : MonoBehaviour
             PunEventHandler.QuickRaiseEvent(PunEventID.RoleDelivery, DeliverRole() , new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
             PunEventHandler.RegisterEvent(PunEventID.DaytimeTransition, DaytimeTransitionPun);
             PunEventHandler.RegisterEvent(PunEventID.NighttimeTransition, NighttimeTransitionPun);
+            
         }
         // Pun Register Event
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleDelivery, ReceiveRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleReceiveSuccess, ReceiveRoleSuccess);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleAwakeness, ReceiveAwakenRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleActionComplete, ReceiveCompleteActionRole);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.AfterWolfHunt, ReceiveAfterWolfHunt);
         PunEventHandler.RegisterReceiveEvent(PunEventID.DaytimeTransition, ReceiveDaytimeTransition);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.ReceiveVote,ReceiveVote);
         PunEventHandler.RegisterReceiveEvent(PunEventID.NighttimeTransition, ReceiveNighttimeTransition);
         PunEventHandler.RegisterReceiveEvent(PunEventID.DiscusstionTimeCountdown, ReceiveDiscussionTimeCountdown);
+        PunEventHandler.RegisterReceiveEvent(PunEventID.ReceiveEndGame, ReceiveEndGame);
 
         // Local Register Event
         ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
@@ -252,7 +256,9 @@ public class Moderator : MonoBehaviour
     }
     private object[] NighttimeTransitionPun()
     {
-        object[] content = new object[] { 0 };
+        object[] content = listPlayerController.GetDeathPlayer(true);
+        if (content == null)
+            content = new object[] { null };
         isSetUpComplete = false;
         return content;
     }
@@ -289,18 +295,28 @@ public class Moderator : MonoBehaviour
             });
         }
     }
-    // Function callback done role action
+    // Function callback when player done action
     private void ReceiveCompleteActionRole(EventData eventData)
     {
         object[] data = (object[])eventData.CustomData;
         Debug.Log("PlayerID: " + (int)data[1] + " call done action");
         listPlayerController.ReceiveCompleteActionRole(data, () =>
         {
-            // Call this action when all player complete their role action
+            // Call this action when the player complete their role action(only for master client)
             ChooseNextActiveRole(this.roleOnAction);
             isPlayerOnAction = false;
         });
 
+    }
+    // Special function callback when player done action (only call by master client)
+    public void ReceiveAfterWolfHunt(EventData eventData)
+    {
+        object[] data = (object[])eventData.CustomData;
+        listPlayerController.ReceiveAfterWolfHunt(data, () => {
+            // Call this action when the player complete their role action(only call by master client)
+            ChooseNextActiveRole(this.roleOnAction);
+            isPlayerOnAction = false;
+        });
     }
     // Function cooldown for discussion time  
     private void ReceiveDiscussionTimeCountdown(EventData eventData)
@@ -317,21 +333,43 @@ public class Moderator : MonoBehaviour
         listPlayerController.RemoveDeathPlayer(data[0] == null ? null : data, () => {
             if(IsEndGame())
             {
-                ActionEventHandler.Invoke(ActionEventID.EndGame);
+                if (PhotonNetwork.IsMasterClient)
+                    PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveEndGame, new object[] { null }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
                 return;
             }
+
             ActionEventHandler.Invoke(ActionEventID.DaytimeTransition);
         });
-        
+    }
+    // Function take the vote ballot from player
+    private void ReceiveVote(EventData eventData)
+    {
+        // Call update UI vote ballot
+        object[] data = (object[])eventData.CustomData;
+        if (data[0] == null)
+            return;
+        listPlayerController.ReceiveVote(data);
     }
     // Function change day to night
-    public void ReceiveNighttimeTransition(EventData eventData)
+    private void ReceiveNighttimeTransition(EventData eventData)
     {
         Debug.Log("Receive NighttimeTransition");
-        ActionEventHandler.Invoke(ActionEventID.NighttimeTransition);
-
+        object[] data = (object[])eventData.CustomData;
+        listPlayerController.RemoveDeathPlayer(data[0] == null ? null : data, () => {
+            if (IsEndGame())
+            {
+                if (PhotonNetwork.IsMasterClient)
+                    PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveEndGame, new object[] { null }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+                return;
+            }
+            ActionEventHandler.Invoke(ActionEventID.NighttimeTransition);
+        });
     }
-
+    // Function receive end game call
+    public void ReceiveEndGame(EventData eventData)
+    {
+        ActionEventHandler.Invoke(ActionEventID.EndGame);
+    }
     #endregion
 
     #region Local Action Event Methods

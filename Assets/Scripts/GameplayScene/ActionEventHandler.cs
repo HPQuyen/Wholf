@@ -8,6 +8,8 @@ public enum ActionEventID
     StartGame,
     InMyTurn,
     CompleteMyTurn,
+    InVoteTurn,
+    CompleteVoteTurn,
     DaytimeTransition,
     NighttimeTransition,
     MasterClientDisconnect,

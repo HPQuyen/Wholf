@@ -21,6 +21,7 @@ public class Witch : Villager
     {
         timesActivation = 0;
         roleID = RoleID.witch;
+        sect = Sect.villagers;
         target = new Stack<IRole>();
         animHandler = GetComponent<AnimationHandler>();
     }
@@ -61,9 +62,9 @@ public class Witch : Villager
         object[] data;
         Debug.Log("Complete My Turn Call");
         if (target.Count == 0)
-            data = new object[] { null, this.playerID };
+            data = new object[] { null, playerID };
         else
-            data = new object[] { this.GetRoleID(), this.playerID, target.Pop().GetPlayerID(), (byte)this.atype };
+            data = new object[] { GetRoleID(), playerID, target.Pop().GetPlayerID(), (byte)atype };
         animHandler.CompleteMyTurn();
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
     }

@@ -12,6 +12,7 @@ public class Cupid : Villager
     protected override void Start()
     {
         roleID = RoleID.cupid;
+        sect = Sect.villagers;
         target = new List<IRole>();
         animHandler = GetComponent<AnimationHandler>();
     }

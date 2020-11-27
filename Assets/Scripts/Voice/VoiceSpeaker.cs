@@ -5,16 +5,19 @@ using UnityEngine;
 
 public class VoiceSpeaker : MonoBehaviour, IPunInstantiateMagicCallback
 {
-    //#region Private Methods
-    //private int actorID;
-    //#endregion
+    #region Private Methods
+    private AudioSource audioSource = null;
+    #endregion
     private void Awake()
     {
         DontDestroyOnLoad(this);
     }
-
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
     public void OnPhotonInstantiate(PhotonMessageInfo info)
     {
-        Debug.Log("OnPhotonInstantiate: " + info.photonView.Controller.ActorNumber);
+        //VoiceSpeakerHandler.GetInstance().AddVoiceSpeaker(info.photonView.Controller.ActorNumber, this);
     }
 }
