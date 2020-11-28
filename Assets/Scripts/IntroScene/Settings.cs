@@ -23,6 +23,9 @@ public class Settings : MonoBehaviour
 
     private int currentResolutionIndex = 0;
 
+    [SerializeField]
+    private Toggle toggler;
+
     #endregion
 
     #endregion
@@ -136,7 +139,17 @@ public class Settings : MonoBehaviour
     {
         SetResolutionText(resolution);
 
-        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+        if (toggler.isOn)
+        {
+            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen);
+            Debug.Log(Screen.fullScreenMode);
+        }
+        else
+        {
+            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode = FullScreenMode.Windowed);
+            Debug.Log(Screen.fullScreenMode);
+        }
+
         PlayerPrefs.SetInt(RESOLUTION_PREF_KEY, currentResolutionIndex);
     }
 

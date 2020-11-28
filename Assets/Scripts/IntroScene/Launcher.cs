@@ -40,7 +40,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         if (UIcontroller.GetNamePlayer() == "")
             return;
-
         if (!PhotonNetwork.IsConnectedAndReady)
             return;
         roomID = Random.Range(1000000000, int.MaxValue).ToString();
