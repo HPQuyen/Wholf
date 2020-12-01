@@ -16,9 +16,11 @@ public class Villager : MonoBehaviour, IRole
     protected bool isSelectable { get; set; }
 
     protected AnimationHandler animHandler;
+    protected SpriteRenderer spriteRenderer;
 
     [SerializeField]
     protected RoleInformation roleInfo;
+
     #endregion
 
     #region Private Fields
@@ -33,6 +35,7 @@ public class Villager : MonoBehaviour, IRole
         sect = Sect.villagers;
         roleID = RoleID.villager;
         animHandler = GetComponent<AnimationHandler>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     protected virtual void Update()
     {
@@ -40,14 +43,14 @@ public class Villager : MonoBehaviour, IRole
     }
     public virtual void OnMouseExit()
     {
-        GetComponent<SpriteRenderer>().color = Color.white;
+        spriteRenderer.color = Color.white;
     }
     public virtual void OnMouseEnter()
     {
         if (isSelectable)
-            GetComponent<SpriteRenderer>().color = Color.red;
+            spriteRenderer.color = Color.red;
         else
-            GetComponent<SpriteRenderer>().color = Color.white;
+            spriteRenderer.color = Color.white;
     }
     public virtual void OnMouseDown()
     {
@@ -120,6 +123,8 @@ public class Villager : MonoBehaviour, IRole
     }
     public void SetIsSelectable(bool state)
     {
+        if (!state)
+            spriteRenderer.color = Color.white;
         isSelectable = state;
     }
     public void SetIsKill(bool state)
@@ -133,10 +138,16 @@ public class Villager : MonoBehaviour, IRole
     #endregion
 
     #region Local Action Event Methods
-
     public virtual void CompleteMyTurn(){}
-    public virtual void InMyTurn() {
+    public virtual void InMyTurnEffect()
+    {
         animHandler.InMyTurn();
+        PlayerUIController.GetInstance().SwitchLight(playerID, true);
+    }
+    public virtual void CompleteMyTurnEffect()
+    {
+        animHandler.CompleteMyTurn();
+        PlayerUIController.GetInstance().SwitchLight(playerID, false);
     }
     #endregion
 }

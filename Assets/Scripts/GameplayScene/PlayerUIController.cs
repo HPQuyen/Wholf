@@ -7,6 +7,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Experimental.Rendering.Universal;
+using System.Collections;
 
 public class PlayerUIController : MonoBehaviour
 {
@@ -24,11 +26,15 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField]
     private GameObject cancelPanel = null;
     [SerializeField]
-    private Sprite[] iconAffection = null;
+    private Sprite[] iconEffect = null;
     [SerializeField]
-    private Affection[] panelAffection = null;
+    private Effect[] panelEffect = null;
     [SerializeField]
-    private TextMeshProUGUI notification_Text = null;
+    private TextMeshProUGUI notificationTurnState_Text = null;
+    [SerializeField]
+    private TextMeshProUGUI notificationTransition_Text = null;
+    [SerializeField]
+    private Light2D[] light2D = null;
     #endregion
     #region Private Fields
     private static PlayerUIController instance = null;
@@ -38,7 +44,7 @@ public class PlayerUIController : MonoBehaviour
     private bool isMyAbilityTurn = false;
     private bool isVoteTurn = false;
     private float cooldownTime;
-    private Dictionary<int, Affection> mapPanelAffection = new Dictionary<int, Affection>();
+    private Dictionary<int, Effect> mapPanelEffect = new Dictionary<int, Effect>();
     private Dictionary<int, int> mapNameBoard = new Dictionary<int, int>();
     #endregion
 
@@ -96,7 +102,6 @@ public class PlayerUIController : MonoBehaviour
     {
         this.playerRole = playerRole;
         ActionEventHandler.AddNewActionEvent(ActionEventID.CompleteMyTurn, playerRole.CompleteMyTurn);
-        ActionEventHandler.AddNewActionEvent(ActionEventID.InMyTurn, playerRole.InMyTurn);
         try
         {
             Debug.Log("Load UI");
@@ -109,43 +114,65 @@ public class PlayerUIController : MonoBehaviour
             Debug.LogError("Error: " + exc.Message);
         }
     }
-    public void RoleActionNotification(string notice)
+    public void NotificationTurnState(string notice)
     {
-        notification_Text.text = notice;
+        notificationTurnState_Text.text = notice;
+    }
+    public void NotificationTransition(string content, Action onNotificationTransition)
+    {
+        notificationTransition_Text.gameObject.SetActive(true);
+        notificationTransition_Text.text = content.ToUpper();
+        StartCoroutine(NotificationTransition(3f,()=> {
+            onNotificationTransition();
+            notificationTransition_Text.gameObject.SetActive(false);
+        }));
+    }
+    IEnumerator NotificationTransition(float timeRepeat ,Action onNotificationTransition)
+    {
+        yield return new WaitForSeconds(1f);
+        notificationTransition_Text.text = timeRepeat.ToString();
+        if (timeRepeat <= 0f)
+        {
+            onNotificationTransition();
+            yield return null;
+            Debug.Log("After return ");
+        }
+        else
+            StartCoroutine(NotificationTransition(timeRepeat - 1,onNotificationTransition));
     }
     public void SetActiveCooldownTime(bool state)
     {
         cooldownMyTurn_Text.gameObject.SetActive(state);
     }
-    public void SetCooldownTime(String time)
+    public void SetCooldownTime(string time)
     {
         cooldownMyTurn_Text.text = time;
     }
 
-    public void AddRoleAffection(RoleID roleID, int playerID,PotionType type = PotionType.kill)
+    public void AddRoleEffect(RoleID roleID, int playerID,PotionType type = PotionType.kill)
     {
         try
         {
-            if (!mapPanelAffection.ContainsKey(playerID))
+            if (!mapPanelEffect.ContainsKey(playerID))
             {
-                foreach (var item in panelAffection)
+                foreach (var item in panelEffect)
                 {
                     if (!item.gameObject.activeSelf)
                     {
                         item.gameObject.SetActive(true);
-                        item.CreateAffection(PhotonNetwork.CurrentRoom.Players[playerID].NickName);
-                        mapPanelAffection.Add(playerID, item);
+                        item.CreateEffect(PhotonNetwork.CurrentRoom.Players[playerID].NickName);
+                        mapPanelEffect.Add(playerID, item);
                         break;
                     }
                 }
             }
             if (roleID == RoleID.witch)
             {
-                mapPanelAffection[playerID].AddAffection(iconAffection[type == PotionType.kill ? (int)RoleID.witch - 1 : (int)RoleID.witch]);
+                mapPanelEffect[playerID].AddEffect(iconEffect[type == PotionType.kill ? (int)RoleID.witch - 1 : (int)RoleID.witch]);
             }
             else
             {
-                mapPanelAffection[playerID].AddAffection(iconAffection[(int)roleID]);
+                mapPanelEffect[playerID].AddEffect(iconEffect[(int)roleID]);
             }
         }
         catch (Exception exc)
@@ -159,11 +186,16 @@ public class PlayerUIController : MonoBehaviour
         {
             nameBoard[mapNameBoard[playerID]].Vote(amount);
         }
-        catch (Exception)
+        catch (Exception) {}
+    }
+    public void SwitchLight(int playerID,bool state)
+    {
+        try
         {
-
+            light2D[mapNameBoard[playerID]].gameObject.SetActive(state);
         }
-    }    
+        catch (Exception) {}
+    }
     public void RoleCastAction()
     {
         playerUI.SetActive(false);
@@ -189,7 +221,10 @@ public class PlayerUIController : MonoBehaviour
         if (isMyAbilityTurn)
             ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
         else if (isVoteTurn)
+        {
             ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
+            PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveVote, new object[] { -1 }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+        }
     }
     public void OnClick_Vote()
     {
@@ -323,7 +358,7 @@ public class PlayerUIController : MonoBehaviour
     }
     private void InVoteTurn()
     {
-        if(!playerRole.GetIsKill())
+        if(!ListPlayerController.IsGhostView())
             isVoteTurn = true;
     }
     private void CompleteVoteTurn()
@@ -336,24 +371,24 @@ public class PlayerUIController : MonoBehaviour
     }
     public void NighttimeTransition()
     {
-        foreach (var item in mapPanelAffection)
+        foreach (var item in mapPanelEffect)
         {
-            item.Value.ResetAffection();
+            item.Value.ResetEffect();
         }
-        mapPanelAffection.Clear();
+        mapPanelEffect.Clear();
         foreach (var item in mapNameBoard)
         {
             nameBoard[item.Value].ResetVote();
         }
         SetActiveCooldownTime(false);
         ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
-        RoleActionNotification("Night Time");
+        NotificationTurnState("Night Time");
     }
     public void DaytimeTransition()
     {
         SetActiveCooldownTime(true);
         ActionEventHandler.Invoke(ActionEventID.InVoteTurn);
-        RoleActionNotification("Morning Time"); 
+        NotificationTurnState("Morning Time"); 
     }
     #endregion
 }

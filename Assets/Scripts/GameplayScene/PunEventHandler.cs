@@ -43,17 +43,24 @@ public class PunEventHandler : MonoBehaviour
     #region Public Methods
     public static void RegisterEvent(byte eventID, Func<object[]> func)
     {
+        Debug.Log("Add function event ID: " + eventID);
         eventListener.Add(eventID, func);
     }
     public static void RaiseEvent(byte eventID, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)
     {
         try
         {
-            PhotonNetwork.RaiseEvent(eventID, eventListener[eventID].Invoke(), raiseEventOptions, sendOptions);
+            if (eventListener.TryGetValue(eventID, out Func<object[]> func))
+            {
+                Debug.Log(func);
+                PhotonNetwork.RaiseEvent(eventID, func.Invoke(), raiseEventOptions, sendOptions);
+            }
+            else
+                Debug.Log(func);
         }
         catch (Exception exc)
         {
-            Debug.LogError("Error: " + exc.Message + ", event ID: " + eventID);
+            Debug.LogError("Error: " + exc.Message + "Event ID: " + eventID);
         }
     }
     public static void QuickRaiseEvent(byte eventID,object[] data, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)

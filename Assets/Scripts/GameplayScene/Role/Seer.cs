@@ -12,10 +12,7 @@ public class Seer : Villager
         roleID = RoleID.seer;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
-    }
-    public override bool IsMyRole(RoleID roleID)
-    {
-        return this.roleID == roleID;
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void CastAbility(IRole target, PotionType type)
@@ -27,11 +24,14 @@ public class Seer : Villager
     }
     public override void ReceiveCastAbility(object[] data)
     {
+        // Log
+        LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
+
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
 
-        // call update UI affect
+        // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (myRole != null && myRole.IsMyRole(RoleID.seer))
+        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.seer))
             target.GetAnimHandler().SeerDetection(target.IsMyRole(RoleID.wolf));
 
         target = null;
@@ -41,7 +41,6 @@ public class Seer : Villager
     {
         object[] data;
         Debug.Log("Complete My Turn Call");
-        animHandler.CompleteMyTurn();
         if (target == null)
             data = new object[] { null, this.playerID };
         else

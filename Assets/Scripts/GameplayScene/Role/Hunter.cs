@@ -1,8 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Hunter : Villager
@@ -14,11 +12,9 @@ public class Hunter : Villager
         roleID = RoleID.hunter;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
-    public override bool IsMyRole(RoleID roleID)
-    {
-        return this.roleID == roleID;
-    }
+
     public override void BeKilled()
     {
         if (target != null)
@@ -36,13 +32,16 @@ public class Hunter : Villager
     }
     public override void ReceiveCastAbility(object[] data)
     {
+        // Log
+        LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
+
         roleID = RoleID.villager;
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
-        // call update UI affection
+        // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (myRole != null && myRole.IsMyRole(RoleID.hunter))
+        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.hunter))
         {
-            PlayerUIController.GetInstance().AddRoleAffection(RoleID.hunter, target.GetPlayerID());
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.hunter, target.GetPlayerID());
         }
     }
     public override void CompleteMyTurn()

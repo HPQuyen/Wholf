@@ -15,17 +15,13 @@ public class Cupid : Villager
         sect = Sect.villagers;
         target = new List<IRole>();
         animHandler = GetComponent<AnimationHandler>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
-    public override bool IsMyRole(RoleID roleID)
-    {
-        return this.roleID == roleID;
-    }
+
     public override void CastAbility(IRole opponent, PotionType type)
     {
         target.Add(opponent);
         opponent.SetIsSelectable(false);
-
-
         // Raise event to moderator
         if (target.Count == 2)
         {
@@ -34,6 +30,9 @@ public class Cupid : Villager
     }
     public override void ReceiveCastAbility(object[] data)
     {
+        // Log
+        LogController.DoneAction(roleID, false, playerID, new object[] { data[2],data[3] });
+
         roleID = RoleID.villager;
         if (data[2] == null || data[3] == null)
             return;
@@ -44,10 +43,10 @@ public class Cupid : Villager
         target1.SetSect(Sect.cupid);
         target2.SetSect(Sect.cupid);
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (PhotonNetwork.LocalPlayer.ActorNumber == target1.GetPlayerID() || PhotonNetwork.LocalPlayer.ActorNumber == target2.GetPlayerID() || myRole != null && myRole.IsMyRole(RoleID.cupid))
+        if (ListPlayerController.IsGhostView() || PhotonNetwork.LocalPlayer.ActorNumber == target1.GetPlayerID() || PhotonNetwork.LocalPlayer.ActorNumber == target2.GetPlayerID() || myRole != null && myRole.IsMyRole(RoleID.cupid))
         {
-            PlayerUIController.GetInstance().AddRoleAffection(RoleID.cupid, target1.GetPlayerID());
-            PlayerUIController.GetInstance().AddRoleAffection(RoleID.cupid, target2.GetPlayerID());
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target1.GetPlayerID());
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target2.GetPlayerID());
         }
     }
     public override void CompleteMyTurn()
@@ -59,7 +58,6 @@ public class Cupid : Villager
         else
             data = new object[] { this.GetRoleID(), this.playerID, target[0].GetPlayerID(), target[1].GetPlayerID()};
         target.Clear();
-        animHandler.CompleteMyTurn();
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
     }
     public override RoleID GetRoleID()

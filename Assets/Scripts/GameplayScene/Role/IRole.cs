@@ -21,7 +21,8 @@ public interface IRole
     //  This function will take a signal from moderator and handle.
     void ReceiveCastAbility(object[] data);
     bool IsMyRole(RoleID roleID);
-    void InMyTurn();
+    void InMyTurnEffect();
+    void CompleteMyTurnEffect();
     void CompleteMyTurn();
 
     #region Getter/Setter

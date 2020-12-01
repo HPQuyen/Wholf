@@ -24,6 +24,7 @@ public class VoiceRecorderHandler : MonoBehaviourPunCallbacks
         ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, DisableVoice);
         ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, DisableVoice);
         ActionEventHandler.AddNewActionEvent(ActionEventID.AfterMyDeath, AfterMyDeath);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.EndGame, EndGame);
     }
     #endregion
 
@@ -43,6 +44,11 @@ public class VoiceRecorderHandler : MonoBehaviourPunCallbacks
         Debug.Log("After my death");
         SetActiveRecorder(false);
         isDie = true;
+    }
+    private void EndGame()
+    {
+        isDie = false;
+        SetActiveRecorder(true);
     }
     #endregion
 

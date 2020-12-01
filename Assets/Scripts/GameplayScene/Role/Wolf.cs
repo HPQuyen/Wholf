@@ -10,17 +10,17 @@ public class Wolf : MonoBehaviour, IRole
     #region Protected Fields
     protected Sect sect;
     protected RoleID roleID;
+    protected IRole target;
     protected bool isKill;
     protected int playerID;
     protected bool isSelectable;
-    protected List<IRole> target;
     protected AnimationHandler animHandler;
     [SerializeField]
     protected RoleInformation roleInfo;
     #endregion
 
     #region Private Fields
-    private int timesActivation;
+    private SpriteRenderer spriteRenderer;
     #endregion
 
     #region MonoFunctions
@@ -28,11 +28,11 @@ public class Wolf : MonoBehaviour, IRole
     {
         isKill = false;
         isSelectable = false;
-        timesActivation = 0;
         sect = Sect.wolves;
         roleID = RoleID.wolf;
-        target = new List<IRole>();
+        target = null;
         animHandler = GetComponent<AnimationHandler>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     protected virtual void Update()
     {
@@ -40,14 +40,14 @@ public class Wolf : MonoBehaviour, IRole
     }
     public virtual void OnMouseExit()
     {
-        GetComponent<SpriteRenderer>().color = Color.white;
+        spriteRenderer.color = Color.white;
     }
     public virtual void OnMouseEnter()
     {
         if (isSelectable)
-            GetComponent<SpriteRenderer>().color = Color.red;
+            spriteRenderer.color = Color.red;
         else
-            GetComponent<SpriteRenderer>().color = Color.white;
+            spriteRenderer.color = Color.white;
     }
     public virtual void OnMouseDown()
     {
@@ -77,42 +77,47 @@ public class Wolf : MonoBehaviour, IRole
     }
     public virtual void CastAbility(IRole opponent, PotionType type)
     {
-        target.Add(opponent);
+        target = opponent;
         
         // Raise event to moderator
         ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
     }
     public virtual void ReceiveCastAbility(object[] data)
     {
-        if(PhotonNetwork.IsMasterClient)
+        // Log
+        LogController.DoneAction(roleID, false, playerID, new object[] { data[2] });
+
+        if (PhotonNetwork.IsMasterClient)
         {
-            timesActivation++;
+            List<int> targetOfWolf = ListPlayerController.GetInstance().targetOfWolf;
+            ListPlayerController.GetInstance().wolfActivation++;
             if (data[2] != null)
             {
-                this.target.Add(ListPlayerController.GetInstance().GetRole((int)data[2]));
+                targetOfWolf.Add(ListPlayerController.GetInstance().GetRole((int)data[2]).GetPlayerID());
             }
-            if (timesActivation == ListPlayerController.GetInstance().CountNumberOfRole(RoleID.wolf))
+            if (ListPlayerController.GetInstance().wolfActivation == ListPlayerController.GetInstance().CountNumberOfRole((role) => role.GetRoleID() == RoleID.wolf))
             {
-                timesActivation = 0;
+                ListPlayerController.GetInstance().wolfActivation = 0;
                 object[] content;
-                if (this.target.Count == 0)
+                if (targetOfWolf.Count == 0)
                     content = new object[] { null };
                 else
-                    content = new object[] { this.target[new System.Random().Next(0, this.target.Count)].GetPlayerID() };
-                this.target.Clear();
+                    content = new object[] { targetOfWolf[new System.Random().Next(0, targetOfWolf.Count)] };
+                targetOfWolf.Clear();
                 PunEventHandler.QuickRaiseEvent(PunEventID.AfterWolfHunt, content , new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
             }
         }
         if (data[2] == null)
             return;
-        // call update UI affect
+        // call update UI effect
         int opponentID = (int)data[2];
         IRole target = ListPlayerController.GetInstance().GetRole(opponentID);
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (myRole != null && myRole.IsMyRole(RoleID.wolf))
+        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.wolf))
         {
-            PlayerUIController.GetInstance().AddRoleAffection(RoleID.wolf, target.GetPlayerID());
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.wolf, target.GetPlayerID());
         }
+        Debug.Log("End cast ability WolfHunt");
     }
     #endregion
 
@@ -160,6 +165,8 @@ public class Wolf : MonoBehaviour, IRole
 
     public void SetIsSelectable(bool state)
     {
+        if (!state)
+            spriteRenderer.color = Color.white;
         isSelectable = state;
     }
     public void SetIsKill(bool state)
@@ -176,19 +183,24 @@ public class Wolf : MonoBehaviour, IRole
     public virtual void CompleteMyTurn()
     {
         object[] data;
-        if (target.Count == 0)
+        if (target == null)
             data = new object[] { this.GetRoleID(), this.playerID, null };
         else
         {
-            data = new object[] { this.GetRoleID(), this.playerID, target[target.Count - 1].GetPlayerID() };
-            target.Clear();
+            data = new object[] { this.GetRoleID(), this.playerID, target.GetPlayerID() };
+            target = null;
         }
-        animHandler.CompleteMyTurn();
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
     }
-    public virtual void InMyTurn()
+    public virtual void InMyTurnEffect()
     {
         animHandler.InMyTurn();
+        PlayerUIController.GetInstance().SwitchLight(playerID, true);
+    }
+    public virtual void CompleteMyTurnEffect()
+    {
+        animHandler.CompleteMyTurn();
+        PlayerUIController.GetInstance().SwitchLight(playerID, false);
     }
     #endregion
 

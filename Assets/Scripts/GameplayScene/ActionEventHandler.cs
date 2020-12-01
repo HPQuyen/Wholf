@@ -56,6 +56,10 @@ public static class ActionEventHandler
     {
         roleCastEvent.Invoke(role);
     }
+    public static bool EventExist(ActionEventID eventID)
+    {
+        return listActionEvent.ContainsKey(eventID);
+    }
     public static void RemoveAction(ActionEventID eventID)
     {
         try

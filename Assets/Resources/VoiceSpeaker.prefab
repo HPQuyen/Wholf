@@ -50,7 +50,7 @@ AudioSource:
   m_Volume: 0.8
   m_Pitch: 1
   Loop: 0
-  Mute: 1
+  Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 128

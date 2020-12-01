@@ -14,11 +14,9 @@ public class Guardian : Villager
         roleID = RoleID.guardian;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
-    public override bool IsMyRole(RoleID roleID)
-    {
-        return this.roleID == roleID;
-    }
+
     public override void CastAbility(IRole target, PotionType type)
     {
         this.target = target;
@@ -27,19 +25,21 @@ public class Guardian : Villager
     }
     public override void ReceiveCastAbility(object[] data)
     {
+        // Log
+        LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
+
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
         target.SetIsKill(false);
-        // call update UI affect
+        // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (myRole != null && myRole.IsMyRole(RoleID.guardian))
-            PlayerUIController.GetInstance().AddRoleAffection(RoleID.guardian, target.GetPlayerID());
+        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.guardian))
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.guardian, target.GetPlayerID());
         target = null;
     }
     public override void CompleteMyTurn()
     {
         object[] data;
         previousTarget = target;
-        animHandler.CompleteMyTurn();
         if (target == null)
             data = new object[] { null, playerID };
         else
