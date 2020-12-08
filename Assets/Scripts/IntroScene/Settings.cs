@@ -11,20 +11,20 @@ public class Settings : MonoBehaviour
     #region Players Pref Key Contact
 
     private const string RESOLUTION_PREF_KEY = "resolution";
+    private const string FULLSCREENMODE_PREF_KEY = "fullscreenmode";
 
     #endregion
 
     #region Resolution
 
     [SerializeField]
-    private TextMeshProUGUI resolutionText;
+    private TextMeshProUGUI resolutionText = null;
 
     private Resolution[] resolutions;
-
     private int currentResolutionIndex = 0;
 
     [SerializeField]
-    private Toggle toggler;
+    private Toggle fullscreenToggler = null;
 
     #endregion
 
@@ -41,21 +41,28 @@ public class Settings : MonoBehaviour
         {
             filteredResolutions.Add(resolutions[i]);
         }
-        
+
         filteredResolutions.RemoveWhere(IsUnsuitableRefreshFrame);
         filteredResolutions.RemoveWhere(IsUnsuitableResolution);
-        Debug.Log("Resolution.Count: " + resolutions.Length);
 
         resolutions = new Resolution[filteredResolutions.Count];
-        Debug.Log("Resolution: " + filteredResolutions.Count);
         filteredResolutions.CopyTo(resolutions);
 
+        // Get current resolution from PlayerPrefs
         currentResolutionIndex = PlayerPrefs.GetInt(RESOLUTION_PREF_KEY, 0);
 
-        SetResolutionText(resolutions[currentResolutionIndex]);
+        Resolution currentResolution = resolutions[currentResolutionIndex];
+        SetResolutionText(currentResolution);
+
+        // Get current screen mode from PlayerPrefs
+        fullscreenToggler.isOn = PlayerPrefs.GetInt(FULLSCREENMODE_PREF_KEY, 0) == 1;
+
+        FullScreenMode fullScreenMode = fullscreenToggler.isOn ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+        Screen.SetResolution(currentResolution.width, currentResolution.height, fullScreenMode);
     }
 
     #region Support Methods/Predicates
+
     private bool IsUnsuitableRefreshFrame(Resolution resolution)
     {
         if (resolution.refreshRate < 40)
@@ -66,14 +73,14 @@ public class Settings : MonoBehaviour
         {
             foreach (var item in resolutions)
             {
-                if(resolution.width == item.width && resolution.height == item.height)
+                if (resolution.width == item.width && resolution.height == item.height)
                 {
                     if (resolution.refreshRate < item.refreshRate)
                         return true;
                 }
             }
         }
-        return false;  
+        return false;
     }
 
     private bool IsUnsuitableResolution(Resolution resolution)
@@ -89,7 +96,7 @@ public class Settings : MonoBehaviour
         {
             for (int i = 0; i < unsuitableWidth.Length; i++)
             {
-                if (resolution.width == unsuitableWidth[i] 
+                if (resolution.width == unsuitableWidth[i]
                     && resolution.height == unsuitableHeight[i])
                 {
                     return true;
@@ -139,15 +146,15 @@ public class Settings : MonoBehaviour
     {
         SetResolutionText(resolution);
 
-        if (toggler.isOn)
+        if (fullscreenToggler.isOn)
         {
-            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen);
-            Debug.Log(Screen.fullScreenMode);
+            Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode = FullScreenMode.FullScreenWindow);
+            PlayerPrefs.SetInt(FULLSCREENMODE_PREF_KEY, 1);
         }
         else
         {
             Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreenMode = FullScreenMode.Windowed);
-            Debug.Log(Screen.fullScreenMode);
+            PlayerPrefs.SetInt(FULLSCREENMODE_PREF_KEY, 0);
         }
 
         PlayerPrefs.SetInt(RESOLUTION_PREF_KEY, currentResolutionIndex);
@@ -158,6 +165,7 @@ public class Settings : MonoBehaviour
     #region Misc Helpers
 
     #region Index Wrap Helpers
+
     private int GetNextWrappedIndex<T>(IList<T> collection, int currentIndex)
     {
         if (collection.Count < 1) return 0;
