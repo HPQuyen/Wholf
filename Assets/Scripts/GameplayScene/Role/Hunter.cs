@@ -12,7 +12,6 @@ public class Hunter : Villager
         roleID = RoleID.hunter;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void BeKilled()

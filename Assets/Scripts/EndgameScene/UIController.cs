@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
@@ -20,7 +19,7 @@ namespace Wholf.EndgameScene
         private GameObject[] roleExpositionDisplay = null;
         [SerializeField]
         private TextMeshProUGUI sectWinDisplay_Text = null;
-        public void Start()
+        private void Start()
         {
             sectWinDisplay_Text.text = RoleExposition.GetSectWin().ToString().ToUpper() + " WIN";
             InitAllRoleExposition();
@@ -74,11 +73,12 @@ namespace Wholf.EndgameScene
         }
         public void OnClick_Menu()
         {
+            PhotonNetwork.AutomaticallySyncScene = false;
             PhotonNetwork.LeaveRoom();
             RoleExposition.ClearAll();
             ActionEventHandler.RemoveAllAction();
             PunEventHandler.RemoveAllEvent();
-            PhotonNetwork.LoadLevel("IntroScene");
+            SceneManager.LoadScene("IntroScene");
         }
         public void OnClick_Exit()
         {

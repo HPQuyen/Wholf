@@ -33,7 +33,6 @@ public interface IRole
     bool GetIsKill();
     RoleID GetRoleID();
     IRole GetTarget();
-    AnimationHandler GetAnimHandler();
     Sect GetSect();
     void SetPlayerID(int playerID);
     void SetIsSelectable(bool state);

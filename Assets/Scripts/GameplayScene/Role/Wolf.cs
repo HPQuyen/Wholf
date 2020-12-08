@@ -20,7 +20,7 @@ public class Wolf : MonoBehaviour, IRole
     #endregion
 
     #region Private Fields
-    private SpriteRenderer spriteRenderer;
+
     #endregion
 
     #region MonoFunctions
@@ -32,23 +32,12 @@ public class Wolf : MonoBehaviour, IRole
         roleID = RoleID.wolf;
         target = null;
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     protected virtual void Update()
     {
 
     }
-    public virtual void OnMouseExit()
-    {
-        spriteRenderer.color = Color.white;
-    }
-    public virtual void OnMouseEnter()
-    {
-        if (isSelectable)
-            spriteRenderer.color = Color.red;
-        else
-            spriteRenderer.color = Color.white;
-    }
+
     public virtual void OnMouseDown()
     {
         if (isSelectable)
@@ -150,10 +139,6 @@ public class Wolf : MonoBehaviour, IRole
     {
         return null;
     }
-    public AnimationHandler GetAnimHandler()
-    {
-        return animHandler;
-    }
     public Sect GetSect()
     {
         return sect;
@@ -165,9 +150,8 @@ public class Wolf : MonoBehaviour, IRole
 
     public void SetIsSelectable(bool state)
     {
-        if (!state)
-            spriteRenderer.color = Color.white;
         isSelectable = state;
+        animHandler.SetSelectable(state);
     }
     public void SetIsKill(bool state)
     {

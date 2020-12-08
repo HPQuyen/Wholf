@@ -145,24 +145,24 @@ public class Moderator : MonoBehaviour
                     this.roleOnAction = RoleID.seer;
                 break;
             case RoleID.seer:
-                if (roleDelivery.witch == 0)
-                    ChooseNextActiveRole(RoleID.witch);
-                else
-                    this.roleOnAction = RoleID.witch;
-                break;
-            case RoleID.witch:
-                if (listPlayerController.CountNumberOfRole((role) => role.GetRoleID() == RoleID.hunter ) == 0)
-                    ChooseNextActiveRole(RoleID.hunter);
-                else
-                    this.roleOnAction = RoleID.hunter;
-                break;
-            case RoleID.hunter:
                 if (roleDelivery.guardian == 0)
                     ChooseNextActiveRole(RoleID.guardian);
                 else
                     this.roleOnAction = RoleID.guardian;
                 break;
             case RoleID.guardian:
+                if (roleDelivery.witch == 0)
+                    ChooseNextActiveRole(RoleID.witch);
+                else
+                    this.roleOnAction = RoleID.witch;
+                break;
+            case RoleID.witch:
+                if (listPlayerController.CountNumberOfRole((role) => role.GetRoleID() == RoleID.hunter) == 0)
+                    ChooseNextActiveRole(RoleID.hunter);
+                else
+                    this.roleOnAction = RoleID.hunter;
+                break;
+            case RoleID.hunter:
                 this.roleOnAction = RoleID.wolf;
                 PunEventHandler.RaiseEvent(PunEventID.DaytimeTransition, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
                 break;

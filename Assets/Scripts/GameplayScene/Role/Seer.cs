@@ -12,7 +12,6 @@ public class Seer : Villager
         roleID = RoleID.seer;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void CastAbility(IRole target, PotionType type)
@@ -32,8 +31,8 @@ public class Seer : Villager
         // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
         if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.seer))
-            target.GetAnimHandler().SeerDetection(target.IsMyRole(RoleID.wolf));
-
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.seer, target.GetPlayerID(), PotionType.kill, target.IsMyRole(RoleID.wolf));
+        
         target = null;
 
     }

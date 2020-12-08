@@ -24,7 +24,6 @@ public class Witch : Villager
         target = new Stack<IRole>();
         atype = new Stack<PotionType>();
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void CastAbility(IRole opponent, PotionType type)
@@ -33,18 +32,18 @@ public class Witch : Villager
         atype.Push(type);
         PlayerUIController.GetInstance().OnClick_Cancel();
         // Raise event to moderator
-        if (target.Count == 2)
+        if (target.Count == 2 || timesActivation == 1)
             ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
     }
     
     public override void ReceiveCastAbility(object[] data)
     {
         //Log
-        LogController.DoneAction(roleID, false, playerID, new object[] { data[2] } ,(byte)((PotionType)data[3]));
+        //LogController.DoneAction(roleID, false, playerID, new object[] { data[2] } ,(byte)((PotionType)data[3]));
 
-
-        timesActivation = data.Length == 4 ? timesActivation+1 : 2;
-        if(timesActivation == 2)
+        timesActivation = data.Length == 4 ? timesActivation + 1 : 2;
+        Debug.Log(timesActivation);
+        if (timesActivation == 2)
         {
             roleID = RoleID.villager;
         }

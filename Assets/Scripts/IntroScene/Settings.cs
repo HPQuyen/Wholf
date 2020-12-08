@@ -17,14 +17,14 @@ public class Settings : MonoBehaviour
     #region Resolution
 
     [SerializeField]
-    private TextMeshProUGUI resolutionText;
+    private TextMeshProUGUI resolutionText = null;
 
     private Resolution[] resolutions;
 
     private int currentResolutionIndex = 0;
 
     [SerializeField]
-    private Toggle toggler;
+    private Toggle toggler = null;
 
     #endregion
 

@@ -15,7 +15,6 @@ public class Cupid : Villager
         sect = Sect.villagers;
         target = new List<IRole>();
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void CastAbility(IRole opponent, PotionType type)

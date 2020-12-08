@@ -1,9 +1,4 @@
-﻿using ExitGames.Client.Photon;
-using Photon.Pun;
-using Photon.Realtime;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Villager : MonoBehaviour, IRole
 {
@@ -16,7 +11,6 @@ public class Villager : MonoBehaviour, IRole
     protected bool isSelectable { get; set; }
 
     protected AnimationHandler animHandler;
-    protected SpriteRenderer spriteRenderer;
 
     [SerializeField]
     protected RoleInformation roleInfo;
@@ -35,22 +29,10 @@ public class Villager : MonoBehaviour, IRole
         sect = Sect.villagers;
         roleID = RoleID.villager;
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     protected virtual void Update()
     {
 
-    }
-    public virtual void OnMouseExit()
-    {
-        spriteRenderer.color = Color.white;
-    }
-    public virtual void OnMouseEnter()
-    {
-        if (isSelectable)
-            spriteRenderer.color = Color.red;
-        else
-            spriteRenderer.color = Color.white;
     }
     public virtual void OnMouseDown()
     {
@@ -109,10 +91,6 @@ public class Villager : MonoBehaviour, IRole
     {
         return null;
     }
-    public AnimationHandler GetAnimHandler()
-    {
-        return animHandler;
-    }
     public Sect GetSect()
     {
         return sect;
@@ -123,9 +101,8 @@ public class Villager : MonoBehaviour, IRole
     }
     public void SetIsSelectable(bool state)
     {
-        if (!state)
-            spriteRenderer.color = Color.white;
         isSelectable = state;
+        animHandler.SetSelectable(state);
     }
     public void SetIsKill(bool state)
     {

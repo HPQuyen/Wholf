@@ -35,13 +35,10 @@ public class AnimationHandler : MonoBehaviour
     public void NighttimeTransition()
     {
         anim.SetBool("IsDay", false);
-    }   
-    public void SeerDetection(bool isWolf)
+    }
+    public void SetSelectable(bool state)
     {
-        if(isWolf)
-            anim.Play("WolfEffect", -1, 0f);
-        else
-            anim.Play("NotWolfEffect", -1, 0f);
+        anim.SetBool("IsSelectable", state);
     }
     public void Die()
     {

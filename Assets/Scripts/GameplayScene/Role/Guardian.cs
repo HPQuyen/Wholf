@@ -14,7 +14,6 @@ public class Guardian : Villager
         roleID = RoleID.guardian;
         sect = Sect.villagers;
         animHandler = GetComponent<AnimationHandler>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     public override void CastAbility(IRole target, PotionType type)

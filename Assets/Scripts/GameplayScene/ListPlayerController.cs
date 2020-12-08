@@ -126,10 +126,9 @@ public class ListPlayerController : MonoBehaviour
                     doubleMaxVote = true;
                 }
             }
-            if (!doubleMaxVote)
-                listPlayerRole[playerID].SetIsKill(true);
-            else
+            if (doubleMaxVote)
                 return null;
+            listPlayerRole[playerID].SetIsKill(true);
         }
         // Get death player by role cast ability
         List<object> listDeathPlayer = new List<object>();
@@ -200,23 +199,15 @@ public class ListPlayerController : MonoBehaviour
             }
         }
     }
-    public void SetAllSelectable(bool state)
+    public void SetAllSelectable(Predicate<IRole> predicate ,bool state)
     {
         foreach (KeyValuePair<int, IRole> item in listPlayerRole)
         {
-            listPlayerRole[item.Key].SetIsSelectable(state);
+            if(predicate.Invoke(item.Value))
+                listPlayerRole[item.Key].SetIsSelectable(state);
         }
     }
-    public void SetAllSelectable(int exceptID, bool state)
-    {
-        foreach (KeyValuePair<int, IRole> item in listPlayerRole)
-        {
-            if (exceptID != item.Key)
-            {
-                item.Value.SetIsSelectable(state);
-            }
-        }
-    }
+
     public List<int> GetListPlayerSurvivor()
     {
         List<int> listSurvivor = new List<int>();
@@ -343,9 +334,10 @@ public class ListPlayerController : MonoBehaviour
         {
             int playerID = (int)data[1];
             IRole playerCompleteTurn = listPlayerRole[playerID];
-            if (isGhost || playerCompleteTurn.IsMyRole(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber].GetRoleID()))
+            if (!playerCompleteTurn.IsMyRole(RoleID.wolf))
             {
-                playerCompleteTurn.CompleteMyTurnEffect();
+                if(isGhost || playerCompleteTurn.IsMyRole(listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber].GetRoleID()))
+                    playerCompleteTurn.CompleteMyTurnEffect();
             }
             if (data[0] != null)
                 listPlayerRole[playerID].ReceiveCastAbility(data);
@@ -361,11 +353,22 @@ public class ListPlayerController : MonoBehaviour
     {
         if (data[0] != null)
         {
-            IRole target = GetRole((int)data[0]);
-            if(target != null)
+            try
+            {
+                IRole target = GetRole((int)data[0]);
                 target.SetIsKill(true);
+            }
+            catch (Exception){}
         }
-        if(PhotonNetwork.IsMasterClient)
+        if (isGhost || listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber].IsMyRole(RoleID.wolf))
+        {
+            foreach (var item in listPlayerRole)
+            {
+                if (item.Value.IsMyRole(RoleID.wolf))
+                    item.Value.CompleteMyTurnEffect();
+            }
+        }
+        if (PhotonNetwork.IsMasterClient)
             OnCompleteActionRole.Invoke();
     }
     public void ReceiveVote(object[] data)

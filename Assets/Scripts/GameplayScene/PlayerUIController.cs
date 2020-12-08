@@ -7,7 +7,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEngine.Experimental.Rendering.Universal;
 using System.Collections;
 
 public class PlayerUIController : MonoBehaviour
@@ -34,7 +33,7 @@ public class PlayerUIController : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI notificationTransition_Text = null;
     [SerializeField]
-    private Light2D[] light2D = null;
+    private SpotlightEffect[] spotlightEffects = null;
     #endregion
     #region Private Fields
     private static PlayerUIController instance = null;
@@ -135,7 +134,6 @@ public class PlayerUIController : MonoBehaviour
         {
             onNotificationTransition();
             yield return null;
-            Debug.Log("After return ");
         }
         else
             StartCoroutine(NotificationTransition(timeRepeat - 1,onNotificationTransition));
@@ -149,10 +147,15 @@ public class PlayerUIController : MonoBehaviour
         cooldownMyTurn_Text.text = time;
     }
 
-    public void AddRoleEffect(RoleID roleID, int playerID,PotionType type = PotionType.kill)
+    public void AddRoleEffect(RoleID roleID, int playerID,PotionType type = PotionType.kill,bool state = true)
     {
         try
         {
+            if(roleID == RoleID.seer)
+            {
+                spotlightEffects[mapNameBoard[playerID]].SeerDetection(state);
+                return;
+            }
             if (!mapPanelEffect.ContainsKey(playerID))
             {
                 foreach (var item in panelEffect)
@@ -192,7 +195,7 @@ public class PlayerUIController : MonoBehaviour
     {
         try
         {
-            light2D[mapNameBoard[playerID]].gameObject.SetActive(state);
+            spotlightEffects[mapNameBoard[playerID]].SwitchLight(state);
         }
         catch (Exception) {}
     }
@@ -213,7 +216,7 @@ public class PlayerUIController : MonoBehaviour
     {
         playerUI.SetActive(true);
         cancelPanel.SetActive(false);
-        listPlayerController.SetAllSelectable(false);
+        listPlayerController.SetAllSelectable( role => true ,false);
         ActionEventHandler.RemoveAction();
     }
     public void OnClick_Skip()
@@ -231,7 +234,7 @@ public class PlayerUIController : MonoBehaviour
         if (!isVoteTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(true);
+        listPlayerController.SetAllSelectable(role => true, true);
         ActionEventHandler.AddNewActionEvent((IRole player) => {
             ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
             PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveVote, new object[] { player.GetPlayerID() },new RaiseEventOptions() { Receivers = ReceiverGroup.All},SendOptions.SendReliable);
@@ -243,7 +246,7 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(playerRole.GetPlayerID(),true);
+        listPlayerController.SetAllSelectable(role => playerRole.GetPlayerID() != role.GetPlayerID(),true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
 
             playerRole.CastAbility(obj);
@@ -258,7 +261,7 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(playerRole.GetPlayerID(), true);
+        listPlayerController.SetAllSelectable(role => playerRole.GetPlayerID() != role.GetPlayerID(), true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             playerRole.CastAbility(obj);
         });
@@ -272,7 +275,7 @@ public class PlayerUIController : MonoBehaviour
             return;
         RoleCastAction();
 
-        listPlayerController.SetAllSelectable(playerRole.GetPlayerID(), true);
+        listPlayerController.SetAllSelectable(role => playerRole.GetPlayerID() != role.GetPlayerID(), true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             Debug.Log(EventSystem.current.currentSelectedGameObject);
             EventSystem.current.currentSelectedGameObject.GetComponent<Button>().interactable = false;
@@ -299,7 +302,7 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(true);
+        listPlayerController.SetAllSelectable(role => true, true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             playerRole.CastAbility(obj);
         });
@@ -312,7 +315,7 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(true);
+        listPlayerController.SetAllSelectable(role => true, true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             playerRole.CastAbility(obj);
         });
@@ -326,9 +329,9 @@ public class PlayerUIController : MonoBehaviour
             return;
         RoleCastAction();
         if (playerRole.GetTarget() != null)
-            listPlayerController.SetAllSelectable(playerRole.GetTarget().GetPlayerID(), true);
+            listPlayerController.SetAllSelectable(role => playerRole.GetTarget().GetPlayerID() != role.GetPlayerID(), true);
         else
-            listPlayerController.SetAllSelectable(true);
+            listPlayerController.SetAllSelectable(role => true, true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             playerRole.CastAbility(obj);
         });
@@ -349,7 +352,7 @@ public class PlayerUIController : MonoBehaviour
     private void CompleteMyTurn()
     {
         isMyAbilityTurn = false;
-        listPlayerController.SetAllSelectable(false);
+        listPlayerController.SetAllSelectable(role => true,false);
         cancelPanel.SetActive(false);
         playerUI.SetActive(true);
         SetActiveCooldownTime(false);
@@ -366,7 +369,7 @@ public class PlayerUIController : MonoBehaviour
         isVoteTurn = false;
         cancelPanel.SetActive(false);
         playerUI.SetActive(true);
-        listPlayerController.SetAllSelectable(false);
+        listPlayerController.SetAllSelectable(role => true, false);
         ActionEventHandler.RemoveAction();
     }
     public void NighttimeTransition()

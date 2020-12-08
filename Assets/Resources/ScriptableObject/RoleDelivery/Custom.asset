@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Custom
   m_EditorClassIdentifier: 
   villager: 0
-  seer: 0
-  cupid: 1
+  seer: 1
+  cupid: 0
   witch: 1
-  wolf: 1
+  wolf: 0
   guardian: 0
   hunter: 0
