@@ -115,13 +115,13 @@ public class ListPlayerController : MonoBehaviour
         // Get death player by vote
         if (byVote)
         {
-            if (listVoteBallot.ContainsKey(-1) && listVoteBallot[-1] == listPlayerRole.Count)
+            if (listVoteBallot.Count == 0 || (listVoteBallot.ContainsKey(-1) && listVoteBallot[-1] == listPlayerRole.Count))
                 return null;
             int playerID = listVoteBallot.Aggregate((x, y) => { return x.Value > y.Value ? x : y; }).Key;
             bool doubleMaxVote = false;
             foreach (var item in listVoteBallot)
             {
-                if (playerID != item.Key && listVoteBallot[playerID] == item.Value)
+                if (item.Key != -1 && playerID != item.Key && listVoteBallot[playerID] == item.Value)
                 {
                     doubleMaxVote = true;
                 }

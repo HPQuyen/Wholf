@@ -60,7 +60,7 @@ public class PunEventHandler : MonoBehaviour
         }
         catch (Exception exc)
         {
-            Debug.LogError("Error: " + exc.Message + "Event ID: " + eventID);
+            Debug.LogError("Error: " + exc.Message + ". Event ID: " + eventID);
         }
     }
     public static void QuickRaiseEvent(byte eventID,object[] data, RaiseEventOptions raiseEventOptions, SendOptions sendOptions)

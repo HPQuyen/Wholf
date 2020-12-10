@@ -16,6 +16,6 @@ MonoBehaviour:
   seer: 1
   cupid: 0
   witch: 1
-  wolf: 0
+  wolf: 1
   guardian: 0
   hunter: 0
