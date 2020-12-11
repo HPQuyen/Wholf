@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "678532306929",
+    "project_id": "wholf-k18",
+    "storage_bucket": "wholf-k18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678532306929:android:9f615e18cd0fdebc65d650",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.Wholf"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "678532306929-28ao14agi5i3ou8ltkkuugl4t429d6sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLezbrp53yilhrCHS0RpgiuxCeBDNRK64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "678532306929-28ao14agi5i3ou8ltkkuugl4t429d6sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
