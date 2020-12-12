@@ -16,6 +16,29 @@ public class SetRoleHandler : MonoBehaviour
             RoleNumber[(int)roleID].text = RoleLst[roleID].ToString();
         }
     }
+
+    public int GetValue(RoleID roleID)
+    {
+        if (!RoleLst.ContainsKey(roleID))
+            return 0;
+        else
+            return RoleLst[roleID];
+    }
+
+    public bool CheckNumber()
+    {
+        int sum = 0;
+
+        foreach(var item in RoleLst)
+        {
+            sum += item.Value;
+        }
+
+        if (sum < 5)
+            return false;
+        else
+            return true;
+    }
     public void Plus(int ID)
     {
         RoleID roleID = (RoleID)ID;

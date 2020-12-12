@@ -20,6 +20,8 @@ public class UIController : MonoBehaviour
     private GameObject startButton = null;
     [SerializeField]
     private RoleDelivery roleDelivery = null;
+    [SerializeField]
+    private SetRoleHandler setRoleHandler = null;
     /* ##################################################
      * #                Panel Menu Fields               #
      * ################################################## */
@@ -61,6 +63,7 @@ public class UIController : MonoBehaviour
     {
         return instance;
     }
+
     public void SetActivePanelMenu(bool state)
     {
         panelMenu.SetActive(state);
@@ -125,12 +128,25 @@ public class UIController : MonoBehaviour
 
     public void OnClick_Apply(string roomID)
     {
-        SetActivePanelMenu(false);
-        panelSetRole.SetActive(false);
-        SetActivePanelLobby(true);
-        SetActiveStartButton(true);
-        panelSettings.SetActive(false);
-        DisplayRoomID(roomID);
+        if (setRoleHandler.CheckNumber())
+        {
+            roleDelivery.cupid = (byte)setRoleHandler.GetValue(RoleID.cupid);
+            roleDelivery.wolf = (byte)setRoleHandler.GetValue(RoleID.wolf);
+            roleDelivery.witch = (byte)setRoleHandler.GetValue(RoleID.witch);
+            roleDelivery.hunter = (byte)setRoleHandler.GetValue(RoleID.hunter);
+            roleDelivery.villager = (byte)setRoleHandler.GetValue(RoleID.villager);
+            roleDelivery.guardian = (byte)setRoleHandler.GetValue(RoleID.guardian);
+            roleDelivery.seer = (byte)setRoleHandler.GetValue(RoleID.seer);
+
+            SetActivePanelMenu(false);
+            panelSetRole.SetActive(false);
+            SetActivePanelLobby(true);
+            SetActiveStartButton(true);
+            panelSettings.SetActive(false);
+            DisplayRoomID(roomID);
+        }
+        else 
+            return;
     }
 
     public void OnClick_Setting()
