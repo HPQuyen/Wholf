@@ -49,15 +49,21 @@ public class SetRoleHandler : MonoBehaviour
                     if (RoleLst.ContainsKey(RoleID.hunter) && RoleLst[RoleID.hunter] == 1)
                         return;
 
-                    if (!RoleLst.ContainsKey(RoleID.cupid) || RoleLst[RoleID.cupid] == 0)
-                        RoleLst.Add(RoleID.cupid, 1);
+                    if (!RoleLst.ContainsKey(RoleID.cupid))
+                        RoleLst.Add(RoleID.cupid, 0);
+
+                    if (RoleLst[RoleID.cupid] < 1)
+                        RoleLst[RoleID.cupid]++;
 
                     break;
                 }
             case RoleID.seer:
                 {
-                    if (!RoleLst.ContainsKey(RoleID.seer) || RoleLst[RoleID.seer] == 0)
-                        RoleLst.Add(RoleID.seer, 1);
+                    if (!RoleLst.ContainsKey(RoleID.seer))
+                        RoleLst.Add(RoleID.seer, 0);
+
+                    if (RoleLst[RoleID.seer] < 1)
+                        RoleLst[RoleID.seer]++;
 
                     break;
                 }
@@ -66,22 +72,31 @@ public class SetRoleHandler : MonoBehaviour
                     if (RoleLst.ContainsKey(RoleID.cupid) && RoleLst[RoleID.cupid] == 1)
                         return;
 
-                    if (!RoleLst.ContainsKey(RoleID.hunter) || RoleLst[RoleID.hunter] == 0)
-                        RoleLst.Add(RoleID.hunter, 1);
+                    if (!RoleLst.ContainsKey(RoleID.hunter))
+                        RoleLst.Add(RoleID.hunter, 0);
+
+                    if (RoleLst[RoleID.hunter] < 1)
+                        RoleLst[RoleID.hunter]++;
 
                     break;
                 }
             case RoleID.witch:
                 {
-                    if (!RoleLst.ContainsKey(RoleID.witch) || RoleLst[RoleID.witch] == 0)
-                        RoleLst.Add(RoleID.witch, 1);
+                    if (!RoleLst.ContainsKey(RoleID.witch))
+                        RoleLst.Add(RoleID.witch, 0);
+
+                    if (RoleLst[RoleID.witch] < 1)
+                        RoleLst[RoleID.witch]++;
 
                     break;
                 }
             case RoleID.guardian:
                 {
-                    if (!RoleLst.ContainsKey(RoleID.guardian) || RoleLst[RoleID.guardian] == 0)
-                        RoleLst.Add(RoleID.guardian, 1);
+                    if (!RoleLst.ContainsKey(RoleID.guardian))
+                        RoleLst.Add(RoleID.guardian, 0);
+
+                    if (RoleLst[RoleID.guardian] < 1)
+                        RoleLst[RoleID.guardian]++;
 
                     break;
                 }
