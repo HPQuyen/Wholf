@@ -4861,6 +4861,7 @@ MonoBehaviour:
   - {fileID: 945019695}
   startButton: {fileID: 690278142}
   roleDelivery: {fileID: 11400000, guid: 0ca67162256ebb74195ac8b45b9363a7, type: 2}
+  setRoleHandler: {fileID: 612816766}
   panelMenu: {fileID: 455357264}
   namePlayer_Input: {fileID: 721969530}
   roomID_Input: {fileID: 2036393863}
