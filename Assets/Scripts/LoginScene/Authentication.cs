@@ -12,27 +12,8 @@ public class Authentication : MonoBehaviour
     private FirebaseAuth auth = null;
     private FirebaseUser User = null;
 
-    //Login variables
-    [Header("Login")]
     [SerializeField]
-    private TMP_InputField emailLoginField;
-    [SerializeField]
-    private TMP_InputField passwordLoginField;
-    [SerializeField]
-    private TMP_Text warningLoginText;
-
-    //Register variables
-    [Header("Register")]
-    [SerializeField]
-    private TMP_InputField emailRegisterField;
-    [SerializeField]
-    private TMP_InputField passwordRegisterField;
-    [SerializeField]
-    private TMP_InputField passwordConfirmedField;
-    [SerializeField]
-    private TMP_InputField usernameRegisterField;
-    [SerializeField]
-    private TMP_Text warningRegisterText;
+    private Wholf.LoginScene.UIController warning = null;
 
     private void Awake()
     {
@@ -59,14 +40,10 @@ public class Authentication : MonoBehaviour
         Debug.Log(auth);
     }
 
-    //Function for the login button
-    public void OnClick_Login()
-    {
-        //Call the login coroutine passing the email and password
-        StartCoroutine(Login(emailLoginField.text, passwordLoginField.text));
-    }
+    
+    
 
-    private IEnumerator Login(string _email, string _password)
+    public IEnumerator Login(string _email, string _password)
     {
         //Call the Firebase auth signin function passing the email and password
         var LoginTask = auth.SignInWithEmailAndPasswordAsync(_email, _password);
@@ -100,7 +77,7 @@ public class Authentication : MonoBehaviour
                     message = "Account does not exist";
                     break;
             }
-            warningLoginText.text = message;
+            warning.DisplayError(message);
         }
         else
         {
@@ -112,34 +89,31 @@ public class Authentication : MonoBehaviour
             User = LoginTask.Result;
             if (!User.IsEmailVerified && !testAccount.Contains(User.Email))
             {
-                warningLoginText.text = "Verify your account first";
+                warning.DisplayError("Verify your account first");
             }
             else
             {
                 Debug.Log(User.IsEmailVerified);
                 Debug.Log(User.DisplayName);
                 Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
-                warningLoginText.text = "Logged In";
+                warning.DisplayError("Logged In");
             }
         }
     }
 
-    public void OnClick_Register()
-    {
-        StartCoroutine(Register(emailRegisterField.text, passwordRegisterField.text, usernameRegisterField.text));
-    }
+    
 
-    private IEnumerator Register(string _email, string _password, string _username)
+    public IEnumerator Register(string _email, string _password, string _username, string _confirmpass)
     {
         if (_username == "")
         {
             //If the username field is blank show a warning
-            warningRegisterText.text = "Missing Username";
+            warning.DisplayError("Missing Username");
         }
-        else if (passwordRegisterField.text != passwordConfirmedField.text)
+        else if (_password != _confirmpass)
         {
             //If the password does not match show a warning
-            warningRegisterText.text = "Password Does Not Match!";
+            warning.DisplayError("Password Does Not Match!");
         }
         else
         {
@@ -171,7 +145,7 @@ public class Authentication : MonoBehaviour
                         message = "Email Already In Use";
                         break;
                 }
-                warningRegisterText.text = message;
+                warning.DisplayError(message);
             }
             else
             {
@@ -195,14 +169,14 @@ public class Authentication : MonoBehaviour
                         Debug.LogWarning(message: $"Failed to register task with {ProfileTask.Exception}");
                         FirebaseException firebaseEx = ProfileTask.Exception.GetBaseException() as FirebaseException;
                         AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-                        warningRegisterText.text = "Username Set Failed!";
+                        warning.DisplayError("Username Set Failed!");
                     }
                     else
                     {
                         //Username is now set
                         //Now return to login screen
                         //instance.LoginScreen();
-                        warningRegisterText.text = "Registered Successfully.Please check your mail to verify account";
+                        warning.DisplayError("Registered Successfully.Please check your mail to verify account");
                         var VerifiedTask = User.SendEmailVerificationAsync();
                     }
                 }
