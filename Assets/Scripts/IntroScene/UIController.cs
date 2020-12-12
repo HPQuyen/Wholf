@@ -13,7 +13,7 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private GameObject panelLobby = null;
     [SerializeField]
-    private TextMeshProUGUI roomID_Display = null;
+    private TextMeshProUGUI[] roomID_Display = null;
     [SerializeField]
     private TextMeshProUGUI[] namePlayer_Display = null;
     [SerializeField]
@@ -33,6 +33,8 @@ public class UIController : MonoBehaviour
     private TMP_InputField roomID_Input = null;
     [SerializeField]
     private GameObject panelSettings = null;
+    [SerializeField]
+    private GameObject panelSetRole = null;
     #endregion
     
 
@@ -86,7 +88,8 @@ public class UIController : MonoBehaviour
     }
     public void DisplayRoomID(string roomID)
     {
-        roomID_Display.text = ("ID: " + roomID);
+        foreach (var item in roomID_Display)
+            item.text = ("ID: " + roomID);
     }
     public string GetNamePlayer()
     {
@@ -100,8 +103,7 @@ public class UIController : MonoBehaviour
     public void OnCreateRoom(string roomID)
     {
         SetActivePanelMenu(false);
-        SetActivePanelLobby(true);
-        SetActiveStartButton(true);
+        panelSetRole.SetActive(true);
         panelSettings.SetActive(false);
         DisplayRoomID(roomID);
     }
@@ -116,10 +118,20 @@ public class UIController : MonoBehaviour
     {
         SetActivePanelLobby(false);
         SetActivePanelMenu(true);
+        panelSetRole.SetActive(false);
         SetActiveStartButton(false);
         panelSettings.SetActive(false);
     }
 
+    public void OnClick_Apply(string roomID)
+    {
+        SetActivePanelMenu(false);
+        panelSetRole.SetActive(false);
+        SetActivePanelLobby(true);
+        SetActiveStartButton(true);
+        panelSettings.SetActive(false);
+        DisplayRoomID(roomID);
+    }
 
     public void OnClick_Setting()
     {

@@ -63,6 +63,11 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(UIcontroller.GetRoomID());
     }
 
+    public void OnClick_Apply()
+    {
+        UIcontroller.OnClick_Apply(roomID);
+    }
+
     public void OnClick_Settings()
     {
         UIController.GetInstance().OnClick_Setting();
