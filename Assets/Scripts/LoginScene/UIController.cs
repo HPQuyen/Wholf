@@ -10,7 +10,7 @@ namespace Wholf.LoginScene
         [SerializeField]
         private GameObject panelLogin = null;
         [SerializeField]
-        private GameObject panelSignup = null;
+        private GameObject panelSignUp = null;
         [SerializeField]
         private Authentication auth = null;
 
@@ -45,6 +45,18 @@ namespace Wholf.LoginScene
         public void OnClick_Register()
         {
             StartCoroutine(auth.Register(emailRegisterField.text, passwordRegisterField.text, usernameRegisterField.text, passwordConfirmedField.text));
+        }
+
+        public void OnClick_SwitchToRegisterPanel()
+        {
+            panelLogin.SetActive(false);
+            panelSignUp.SetActive(true);
+        }
+
+        public void OnClick_SwitchToLoginPanel()
+        {
+            panelLogin.SetActive(true);
+            panelSignUp.SetActive(false);
         }
 
         public void DisplayError(string ErrorMsg)
