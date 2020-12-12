@@ -106,9 +106,21 @@ public class Authentication : MonoBehaviour
         {
             //User is now logged in
             //Now get the result
+            List<string> testAccount = new List<string>() {
+                "tester1@gmail.com", "tester2@gmail.com", "tester3@gmail.com", "tester4@gmail.com",
+                "tester5@gmail.com","tester6@gmail.com","tester7@gmail.com","tester8@gmail.com"};
             User = LoginTask.Result;
-            Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
-            warningLoginText.text = "Logged In";
+            if (!User.IsEmailVerified && !testAccount.Contains(User.Email))
+            {
+                warningLoginText.text = "Verify your account first";
+            }
+            else
+            {
+                Debug.Log(User.IsEmailVerified);
+                Debug.Log(User.DisplayName);
+                Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
+                warningLoginText.text = "Logged In";
+            }
         }
     }
 
@@ -190,7 +202,8 @@ public class Authentication : MonoBehaviour
                         //Username is now set
                         //Now return to login screen
                         //instance.LoginScreen();
-                        warningRegisterText.text = "Registered Successfully.";
+                        warningRegisterText.text = "Registered Successfully.Please check your mail to verify account";
+                        var VerifiedTask = User.SendEmailVerificationAsync();
                     }
                 }
             }
