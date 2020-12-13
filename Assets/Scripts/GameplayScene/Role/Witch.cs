@@ -42,11 +42,6 @@ public class Witch : Villager
         //LogController.DoneAction(roleID, false, playerID, new object[] { data[2] } ,(byte)((PotionType)data[3]));
 
         timesActivation = data.Length == 4 ? timesActivation + 1 : 2;
-        Debug.Log(timesActivation);
-        if (timesActivation == 2)
-        {
-            roleID = RoleID.villager;
-        }
         for (int i = 2; i < data.Length; i += 2)
         {
             IRole target = ListPlayerController.GetInstance().GetRole((int)data[i]);

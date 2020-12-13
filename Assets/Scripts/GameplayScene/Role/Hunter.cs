@@ -32,8 +32,7 @@ public class Hunter : Villager
     public override void ReceiveCastAbility(object[] data)
     {
         // Log
-        LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
-
+        //LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
         roleID = RoleID.villager;
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
         // call update UI effect
