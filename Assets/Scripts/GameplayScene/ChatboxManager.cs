@@ -89,11 +89,13 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     public void DebugReturn(DebugLevel level, string message)
     {
         // Do Nothing
+
     }
 
     public void OnChatStateChange(ChatState state)
     {
         // Do Nothing
+        
     }
 
     public void OnConnected()

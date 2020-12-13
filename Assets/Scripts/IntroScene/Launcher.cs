@@ -1,7 +1,7 @@
 ﻿using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -52,6 +52,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         };
         PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
         PhotonNetwork.CreateRoom(roomID, roomOption);
+        
     }
     public void OnClick_JoinRoom()
     {
@@ -82,10 +83,11 @@ public class Launcher : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
             PhotonNetwork.LoadLevel("GameplayScene");
     }
-
-    public void OnClick_Exit()
+    public void OnClick_LogOut()
     {
-        Application.Quit();
+        PhotonNetwork.Disconnect();
+        PlayerProfile.SignOut();
+        SceneManager.LoadScene("LoginScene");
     }
     #endregion
 
@@ -116,7 +118,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         Debug.Log("Left Room");
-        UIcontroller.OnLeaveRoom(); 
+        UIcontroller.OnLeaveRoom();
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
@@ -143,6 +145,7 @@ public class Launcher : MonoBehaviourPunCallbacks
                 UIcontroller.DisplayNamePlayer(i, "", Color.white);
             }
         }
+
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using TMPro;
 
@@ -12,7 +11,7 @@ namespace Wholf.LoginScene
         [SerializeField]
         private GameObject panelSignUp = null;
         [SerializeField]
-        private Authentication auth = null;
+        private Authentication authentication = null;
 
         //Login variables
         [Header("Login")]
@@ -33,18 +32,18 @@ namespace Wholf.LoginScene
         private TMP_InputField usernameRegisterField;
 
         [SerializeField]
-        private TMP_Text warning;
+        private TMP_Text warningText;
 
         //Function for the login button
         public void OnClick_Login()
         {
             //Call the login coroutine passing the email and password
-            StartCoroutine(auth.Login(emailLoginField.text, passwordLoginField.text));
+            StartCoroutine(authentication.Login(emailLoginField.text, passwordLoginField.text));
         }
 
         public void OnClick_Register()
         {
-            StartCoroutine(auth.Register(emailRegisterField.text, passwordRegisterField.text, usernameRegisterField.text, passwordConfirmedField.text));
+            StartCoroutine(authentication.Register(emailRegisterField.text, passwordRegisterField.text, usernameRegisterField.text, passwordConfirmedField.text));
         }
 
         public void OnClick_SwitchToRegisterPanel()
@@ -58,10 +57,67 @@ namespace Wholf.LoginScene
             panelLogin.SetActive(true);
             panelSignUp.SetActive(false);
         }
-
+        public void OnClick_Guest()
+        {
+            authentication.PlayAsGuest();
+        }
+        public void OnClick_Exit()
+        {
+            Application.Quit();
+        }
         public void DisplayError(string ErrorMsg)
         {
-            warning.text = ErrorMsg;
+            warningText.text = ErrorMsg;
+        }
+
+
+
+        private void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.Tab))
+            {
+                if(panelLogin.activeSelf)
+                {
+                    if (emailLoginField.isFocused)
+                    {
+                        passwordLoginField.Select();
+                    }
+                    else
+                    {
+                        emailLoginField.Select();
+                    }
+                }
+                else
+                {
+                    if (emailRegisterField.isFocused)
+                    {
+                        usernameRegisterField.Select();
+                    }
+                    else if (usernameRegisterField.isFocused)
+                    {
+                        passwordRegisterField.Select();
+                    }
+                    else if (passwordRegisterField.isFocused)
+                    {
+                        passwordConfirmedField.Select();
+                    }
+                    else
+                    {
+                        emailRegisterField.Select();
+                    }
+                }
+            }
+            if(Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
+            {
+                if (panelLogin.activeSelf)
+                {
+                    OnClick_Login();
+                }
+                else
+                {
+                    OnClick_Register();
+                }
+            }
         }
     }
 }

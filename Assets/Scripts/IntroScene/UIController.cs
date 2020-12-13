@@ -56,6 +56,14 @@ public class UIController : MonoBehaviour
         else if(instance != this)
             Destroy(this);
     }
+    private void Start()
+    {
+        if(PlayerProfile.GetPlayerName() != null)
+        {
+            namePlayer_Input.text = PlayerProfile.GetPlayerName();
+            namePlayer_Input.interactable = false;
+        }
+    }
     #endregion
 
     #region Public Methods
@@ -87,7 +95,6 @@ public class UIController : MonoBehaviour
         {
             Debug.Log("Error: " + exc.Message);
         }
-
     }
     public void DisplayRoomID(string roomID)
     {
@@ -145,8 +152,6 @@ public class UIController : MonoBehaviour
             panelSettings.SetActive(false);
             DisplayRoomID(roomID);
         }
-        else 
-            return;
     }
 
     public void OnClick_Setting()

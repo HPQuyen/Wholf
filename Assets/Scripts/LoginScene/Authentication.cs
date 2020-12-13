@@ -4,16 +4,17 @@ using UnityEngine;
 using Firebase;
 using Firebase.Auth;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Authentication : MonoBehaviour
 {
     [Header("Firebase")]
     private DependencyStatus dependencyStatus;
     private FirebaseAuth auth = null;
-    private FirebaseUser User = null;
+    private FirebaseUser user = null;
 
     [SerializeField]
-    private Wholf.LoginScene.UIController warning = null;
+    private Wholf.LoginScene.UIController UIcontroller = null;
 
     private void Awake()
     {
@@ -77,7 +78,7 @@ public class Authentication : MonoBehaviour
                     message = "Account does not exist";
                     break;
             }
-            warning.DisplayError(message);
+            UIcontroller.DisplayError(message);
         }
         else
         {
@@ -86,17 +87,17 @@ public class Authentication : MonoBehaviour
             List<string> testAccount = new List<string>() {
                 "tester1@gmail.com", "tester2@gmail.com", "tester3@gmail.com", "tester4@gmail.com",
                 "tester5@gmail.com","tester6@gmail.com","tester7@gmail.com","tester8@gmail.com"};
-            User = LoginTask.Result;
-            if (!User.IsEmailVerified && !testAccount.Contains(User.Email))
+            user = LoginTask.Result;
+            if (!user.IsEmailVerified && !testAccount.Contains(user.Email))
             {
-                warning.DisplayError("Verify your account first");
+                UIcontroller.DisplayError("Verify your account first");
             }
             else
             {
-                Debug.Log(User.IsEmailVerified);
-                Debug.Log(User.DisplayName);
-                Debug.LogFormat("User signed in successfully: {0} ({1})", User.DisplayName, User.Email);
-                warning.DisplayError("Logged In");
+                Debug.LogFormat("User signed in successfully: {0} ({1})", user.DisplayName, user.Email);
+                //UIcontroller.DisplayError("Logged In");
+                PlayerProfile.AddAuth(auth);
+                SceneManager.LoadScene("IntroScene");
             }
         }
     }
@@ -108,12 +109,12 @@ public class Authentication : MonoBehaviour
         if (_username == "")
         {
             //If the username field is blank show a warning
-            warning.DisplayError("Missing Username");
+            UIcontroller.DisplayError("Missing Username");
         }
         else if (_password != _confirmpass)
         {
             //If the password does not match show a warning
-            warning.DisplayError("Password Does Not Match!");
+            UIcontroller.DisplayError("Password Does Not Match!");
         }
         else
         {
@@ -145,21 +146,21 @@ public class Authentication : MonoBehaviour
                         message = "Email Already In Use";
                         break;
                 }
-                warning.DisplayError(message);
+                UIcontroller.DisplayError(message);
             }
             else
             {
                 //User has now been created
                 //Now get the result
-                User = RegisterTask.Result;
+                user = RegisterTask.Result;
 
-                if (User != null)
+                if (user != null)
                 {
                     //Create a user profile and set the username
                     UserProfile profile = new UserProfile { DisplayName = _username };
 
                     //Call the Firebase auth update user profile function passing the profile with the username
-                    var ProfileTask = User.UpdateUserProfileAsync(profile);
+                    var ProfileTask = user.UpdateUserProfileAsync(profile);
                     //Wait until the task completes
                     yield return new WaitUntil(predicate: () => ProfileTask.IsCompleted);
 
@@ -169,18 +170,22 @@ public class Authentication : MonoBehaviour
                         Debug.LogWarning(message: $"Failed to register task with {ProfileTask.Exception}");
                         FirebaseException firebaseEx = ProfileTask.Exception.GetBaseException() as FirebaseException;
                         AuthError errorCode = (AuthError)firebaseEx.ErrorCode;
-                        warning.DisplayError("Username Set Failed!");
+                        UIcontroller.DisplayError("Username Set Failed!");
                     }
                     else
                     {
                         //Username is now set
                         //Now return to login screen
                         //instance.LoginScreen();
-                        warning.DisplayError("Registered Successfully.Please check your mail to verify account");
-                        var VerifiedTask = User.SendEmailVerificationAsync();
+                        UIcontroller.DisplayError("Registered Successfully.Please check your mail to verify account");
+                        var VerifiedTask = user.SendEmailVerificationAsync();
                     }
                 }
             }
         }
+    }
+    public void PlayAsGuest()
+    {
+        SceneManager.LoadScene("IntroScene");
     }
 }
