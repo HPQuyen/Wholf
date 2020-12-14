@@ -24,10 +24,10 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     {
         chatClient = new ChatClient(this);
         chatClient.Connect(PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat, PhotonNetwork.AppVersion, new AuthenticationValues(PhotonNetwork.LocalPlayer.NickName));
-        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, NighttimeTransition);
-        ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
-        ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
-        ActionEventHandler.AddNewActionEvent(ActionEventID.AfterMyDeath, AfterMyDeath);
+        //ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, NighttimeTransition);
+        //ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
+        //ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
+        //ActionEventHandler.AddNewActionEvent(ActionEventID.AfterMyDeath, AfterMyDeath);
     }
 
     // Update is called once per frame
