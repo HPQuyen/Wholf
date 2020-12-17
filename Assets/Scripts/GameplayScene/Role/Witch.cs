@@ -31,7 +31,7 @@ public class Witch : Villager
         target.Push(opponent);
         atype.Push(type);
         PlayerUIController.GetInstance().OnClick_Cancel();
-        // Raise event to moderator
+        // Raise event to Moderator
         if (target.Count == 2 || timesActivation == 1)
             ActionEventHandler.Invoke(ActionEventID.CompleteMyTurn);
     }
@@ -40,7 +40,7 @@ public class Witch : Villager
     {
         //Log
         //LogController.DoneAction(roleID, false, playerID, new object[] { data[2] } ,(byte)((PotionType)data[3]));
-
+        
         timesActivation = data.Length == 4 ? timesActivation + 1 : 2;
         for (int i = 2; i < data.Length; i += 2)
         {

@@ -74,7 +74,7 @@ public class Wolf : MonoBehaviour, IRole
     public virtual void ReceiveCastAbility(object[] data)
     {
         // Log
-        LogController.DoneAction(roleID, false, playerID, new object[] { data[2] });
+        //LogController.DoneAction(roleID, false, playerID, new object[] { data[2] });
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -111,14 +111,6 @@ public class Wolf : MonoBehaviour, IRole
     #endregion
 
     #region Getter/Setter
-    public Sprite GetSpriteRole()
-    {
-        return roleInfo.spriteRole;
-    }
-    public string GetNameRole()
-    {
-        return roleInfo.nameRole;
-    }
     public int GetTimeRoleAction()
     {
         return roleInfo.timeRoleAction;

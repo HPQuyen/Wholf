@@ -278,7 +278,6 @@ public class ListPlayerController : MonoBehaviour
             // Log
             LogController.LogWakeUp(roleID, true);
 
-
             if(PhotonNetwork.IsMasterClient)
             {
                 StartCoroutine(FakeReceiveRoleWakeUp(new System.Random().Next(5,20),() => {

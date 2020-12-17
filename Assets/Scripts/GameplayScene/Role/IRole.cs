@@ -26,8 +26,6 @@ public interface IRole
     void CompleteMyTurn();
 
     #region Getter/Setter
-    Sprite GetSpriteRole();
-    string GetNameRole();
     int GetTimeRoleAction();
     int GetPlayerID();
     bool GetIsKill();
