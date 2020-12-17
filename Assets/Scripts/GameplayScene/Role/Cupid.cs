@@ -30,7 +30,7 @@ public class Cupid : Villager
     public override void ReceiveCastAbility(object[] data)
     {
         // Log
-        LogController.DoneAction(roleID, false, playerID, new object[] { data[2],data[3] });
+        //LogController.DoneAction(roleID, false, playerID, new object[] { data[2],data[3] });
 
         roleID = RoleID.villager;
         if (data[2] == null || data[3] == null)
@@ -62,5 +62,11 @@ public class Cupid : Villager
     public override RoleID GetRoleID()
     {
         return RoleID.cupid;
+    }
+    public override IRole GetTarget()
+    {
+        if (target.Count == 0)
+            return null;
+        return target[0];
     }
 }

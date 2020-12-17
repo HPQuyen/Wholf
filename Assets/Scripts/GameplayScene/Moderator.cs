@@ -172,9 +172,9 @@ public class Moderator : MonoBehaviour
     }
     public bool IsEndGame(out Sect sectWin)
     {
-        int villagerSect = listPlayerController.CountNumberOfRole((role) => role.GetRoleID() != RoleID.wolf);
+        int villagerSect = listPlayerController.CountNumberOfRole((role) => role.GetSect() == Sect.villagers);
         int cupidSect = listPlayerController.CountNumberOfRole((role) => role.GetSect() == Sect.cupid);
-        int wolfSect = listPlayerController.CountNumberOfRole((role) => role.GetRoleID() == RoleID.wolf);
+        int wolfSect = listPlayerController.CountNumberOfRole((role) => role.GetSect() == Sect.wolves);
         int survivor = listPlayerController.CountNumberOfRole((role) => true);
         if (cupidSect == 2 && survivor == 2)
         {
@@ -182,13 +182,13 @@ public class Moderator : MonoBehaviour
             sectWin = Sect.cupid;
             return true;
         }
-        if (wolfSect == 0)
+        if (wolfSect == 0 && cupidSect == 0)
         {
             // Villager win
             sectWin = Sect.villagers;
             return true;
         }
-        if (wolfSect >= villagerSect)
+        if (wolfSect >= survivor - wolfSect)
         {
             // Wolf win
             sectWin = Sect.wolves;

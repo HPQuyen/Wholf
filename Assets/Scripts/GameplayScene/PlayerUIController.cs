@@ -302,7 +302,10 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-        listPlayerController.SetAllSelectable(role => true, true);
+        if (playerRole.GetTarget() != null)
+            listPlayerController.SetAllSelectable(role => playerRole.GetTarget().GetPlayerID() != role.GetPlayerID(), true);
+        else
+            listPlayerController.SetAllSelectable(role => true, true);
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
             playerRole.CastAbility(obj);
         });

@@ -43,7 +43,7 @@ namespace Wholf.EndgameScene
             Dictionary<int, IRole> survivor = RoleExposition.GetSurvivor();
             foreach (var item in survivor)
             {
-                if (item.Value.IsMyRole(roleID))
+                if (item.Value.GetRoleID() == roleID)
                 {
                     isRoleExist = true;
                     playerName_Text[position].text += PhotonNetwork.CurrentRoom.Players[item.Value.GetPlayerID()].NickName + "(survivor)";

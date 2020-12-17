@@ -63,14 +63,6 @@ public class Villager : MonoBehaviour, IRole
     #endregion
 
     #region Getter/Setter
-    public Sprite GetSpriteRole()
-    {
-        return roleInfo.spriteRole;
-    }
-    public string GetNameRole()
-    {
-        return roleInfo.nameRole;
-    }
     public int GetTimeRoleAction()
     {
         return roleInfo.timeRoleAction;

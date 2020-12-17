@@ -25,7 +25,7 @@ public class Guardian : Villager
     public override void ReceiveCastAbility(object[] data)
     {
         // Log
-        LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
+        //LogController.DoneAction(roleID, false, playerID, new object[] { (int)data[2] });
 
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
         target.SetIsKill(false);

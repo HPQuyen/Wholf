@@ -82,20 +82,20 @@ public class Authentication : MonoBehaviour
         }
         else
         {
-            //User is now logged in
-            //Now get the result
+            // Check if account is verified yet or not
+            user = LoginTask.Result;
             List<string> testAccount = new List<string>() {
                 "tester1@gmail.com", "tester2@gmail.com", "tester3@gmail.com", "tester4@gmail.com",
                 "tester5@gmail.com","tester6@gmail.com","tester7@gmail.com","tester8@gmail.com"};
-            user = LoginTask.Result;
             if (!user.IsEmailVerified && !testAccount.Contains(user.Email))
             {
                 UIcontroller.DisplayError("Verify your account first");
             }
             else
             {
+                //User is now logged in
+                //Now get the result
                 Debug.LogFormat("User signed in successfully: {0} ({1})", user.DisplayName, user.Email);
-                //UIcontroller.DisplayError("Logged In");
                 PlayerProfile.AddAuth(auth);
                 SceneManager.LoadScene("IntroScene");
             }
@@ -158,7 +158,6 @@ public class Authentication : MonoBehaviour
                 {
                     //Create a user profile and set the username
                     UserProfile profile = new UserProfile { DisplayName = _username };
-
                     //Call the Firebase auth update user profile function passing the profile with the username
                     var ProfileTask = user.UpdateUserProfileAsync(profile);
                     //Wait until the task completes
