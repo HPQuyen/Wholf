@@ -270,8 +270,9 @@ public class ListPlayerController : MonoBehaviour
     #region Pun(Network) Event Methods
     public void ReceiveRoleWakeUp(RoleID roleID, object playerIDObj,Action OnAwakeRole)
     {
+
+        PlayerUIController.GetInstance().NotificationTurnState(roleID.ToString());
         // Fake call role action
-        PlayerUIController.GetInstance().NotificationTurnState(roleID + "'s Turn");
         if (playerIDObj == null)
         {
             // Log

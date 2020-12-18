@@ -390,13 +390,13 @@ public class PlayerUIController : MonoBehaviour
         }
         SetActiveCooldownTime(false);
         ActionEventHandler.Invoke(ActionEventID.CompleteVoteTurn);
-        NotificationTurnState("Night Time");
+        NotificationTurnState("Night");
     }
     public void DaytimeTransition()
     {
         SetActiveCooldownTime(true);
         ActionEventHandler.Invoke(ActionEventID.InVoteTurn);
-        NotificationTurnState("Morning Time"); 
+        NotificationTurnState("Morning"); 
     }
     #endregion
 }
