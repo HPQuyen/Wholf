@@ -9,6 +9,8 @@ public enum ActionEventID
     InMyTurn,
     CompleteMyTurn,
     InVoteTurn,
+    InCupidPairing,
+    TwoWolfInGame,
     CompleteVoteTurn,
     DaytimeTransition,
     NighttimeTransition,

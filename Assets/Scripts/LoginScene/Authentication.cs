@@ -176,7 +176,7 @@ public class Authentication : MonoBehaviour
                         //Username is now set
                         //Now return to login screen
                         //instance.LoginScreen();
-                        UIcontroller.DisplayError("Registered Successfully.Please check your mail to verify account");
+                        UIcontroller.DisplayError("Registered Successfully. Please check your mail to verify account!");
                         var VerifiedTask = user.SendEmailVerificationAsync();
                     }
                 }

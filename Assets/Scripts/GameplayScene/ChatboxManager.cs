@@ -1,8 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Chat;
 using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,10 +11,14 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     private Text contentMessage = null;
     [SerializeField]
     private InputField inputField = null;
+    [SerializeField]
+    private Toggle[] channelTab = null;
     #endregion
     #region Private Fields
     private ChatClient chatClient = null;
-    private string publicChannel = "publicChannel";
+    private string[] channels = new string[] { "PublicChannel", "WolfChannel", "CoupleChannel" };
+    private string currentChannel = "PublicChannel";
+    private bool isDay;
     #endregion
     #region Monobehaviour Methods
     // Start is called before the first frame update
@@ -24,10 +26,12 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     {
         chatClient = new ChatClient(this);
         chatClient.Connect(PhotonNetwork.PhotonServerSettings.AppSettings.AppIdChat, PhotonNetwork.AppVersion, new AuthenticationValues(PhotonNetwork.LocalPlayer.NickName));
-        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, NighttimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, StartGame);
         ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.AfterMyDeath, AfterMyDeath);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.InCupidPairing, () => { SubscribeNewChannel(2); });
+        ActionEventHandler.AddNewActionEvent(ActionEventID.TwoWolfInGame, () => { SubscribeNewChannel(1); });
     }
 
     // Update is called once per frame
@@ -51,11 +55,11 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     public void OnClick_Send()
     {
         inputField.text = inputField.text.Trim('\n');
-        if (!inputField.text.Equals("") && !inputField.text.Equals("\n"))
+        if (!inputField.text.Equals("") && !inputField.text.Equals("\n") && inputField.interactable)
         {
             SendMessages(inputField.text);
-            inputField.text = "";
         }
+        inputField.text = "";
     }
     public void OnEnter_Send()
     {
@@ -64,24 +68,54 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
             OnClick_Send();
         }
     }
+    public void ChangeChannel(string channel)
+    {
+        currentChannel = channel;
+        if (!isDay)
+            inputField.interactable = !currentChannel.Equals("PublicChannel");
+        else
+            inputField.interactable = true;
+        ChatChannel chatChannel;
+        if(chatClient != null && chatClient.TryGetChannel(currentChannel,out chatChannel))
+        {
+            contentMessage.text = chatChannel.ToStringMessages();
+        }
+    }
     private void SendMessages(string message)
     {
-        chatClient.PublishMessage(publicChannel, message);
+        chatClient.PublishMessage(currentChannel, message);
     }
     #endregion
 
     #region Local ActionEvent Methods
+    private void StartGame()
+    {
+        isDay = false;
+        inputField.interactable = false;
+    }
     private void NighttimeTransition()
     {
-        inputField.interactable = false;
+        isDay = false;
+        if(currentChannel.Equals("PublicChannel"))
+            inputField.interactable = false;
     }
     private void DaytimeTransition()
     {
+        isDay = true;
         inputField.interactable = true;
     }
     private void AfterMyDeath()
     {
         inputField.gameObject.SetActive(false);
+    }
+    private void SubscribeNewChannel(int index)
+    {
+        chatClient.Subscribe(channels[index]);
+        if (channelTab != null)
+        {
+            channelTab[0].interactable = true;
+            channelTab[index].gameObject.SetActive(true);
+        }
     }
     #endregion
 
@@ -101,13 +135,12 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     public void OnConnected()
     {
         // Do Nothing
-        chatClient.Subscribe(publicChannel);
+        chatClient.Subscribe(new string[] { channels[0],channels[1] });
     }
 
     public void OnDisconnected()
     {
         // Do Nothing
-
     }
 
     public void OnGetMessages(string channelName, string[] senders, object[] messages)
@@ -115,18 +148,11 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
         lock (contentMessage)
         {
             ChatChannel chatChannel;
-            if (!chatClient.TryGetChannel(publicChannel, out chatChannel))
+            if (!chatClient.TryGetChannel(currentChannel, out chatChannel))
             {
                 Debug.Log("ShowChannel failed to find channel: " + channelName);
                 return;
             }
-            //string msgs = "";
-            //for (int i = 0; i < senders.Length; i++)
-            //{
-            //    msgs = string.Format("{0}: {1}, ", msgs, senders[i], messages[i]);
-            //    contentMessage.text += msgs;
-            //}
-            //Debug.LogFormat("OnGetMessages: {0} ({1}) > {2}", channelName, senders.Length, msgs);
             contentMessage.text = chatChannel.ToStringMessages();
         }
     }
@@ -144,10 +170,10 @@ public class ChatboxManager : MonoBehaviour,IChatClientListener
     public void OnSubscribed(string[] channels, bool[] results)
     {
         // Do Nothing
-        foreach (string channel in channels)
-        {
-            this.chatClient.PublishMessage(channel, "says 'hi'."); // you don't HAVE to send a msg on join but you could.
-        }
+        //foreach (string channel in channels)
+        //{
+        //    chatClient.PublishMessage(channel, "says 'hi'."); // you don't HAVE to send a msg on join but you could.
+        //}
 
         Debug.Log("OnSubscribed: " + string.Join(", ", channels));
     }

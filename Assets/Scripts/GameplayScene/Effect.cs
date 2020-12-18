@@ -14,7 +14,7 @@ public class Effect : MonoBehaviour
 
         foreach (var item in iconEffect_Display)
         {
-            if(!item.IsActive())
+            if(!item.enabled)
             {
                 item.sprite = iconEffect;
                 item.enabled = true;
@@ -30,7 +30,7 @@ public class Effect : MonoBehaviour
     {
         foreach (var item in iconEffect_Display)
         {
-            if(item.gameObject != gameObject)
+            if (item.gameObject != gameObject)
                 item.enabled = false;
         }
         gameObject.SetActive(false);

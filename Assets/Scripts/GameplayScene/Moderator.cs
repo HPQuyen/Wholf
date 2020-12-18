@@ -25,7 +25,7 @@ public class Moderator : MonoBehaviour
     private bool isSecondPassed = true;
     private float disscustionTime;
     private ListPlayerController listPlayerController = null;
-    private int receiveRoleSuccessCount = 0;
+    //private int receiveRoleSuccessCount = 0;
 
     #endregion
 
@@ -62,7 +62,7 @@ public class Moderator : MonoBehaviour
         }
         // Pun Register Event
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleDelivery, ReceiveRole);
-        PunEventHandler.RegisterReceiveEvent(PunEventID.RoleReceiveSuccess, ReceiveRoleSuccess);
+        //PunEventHandler.RegisterReceiveEvent(PunEventID.RoleReceiveSuccess, ReceiveRoleSuccess);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleAwakeness, ReceiveAwakenRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.RoleActionComplete, ReceiveCompleteActionRole);
         PunEventHandler.RegisterReceiveEvent(PunEventID.AfterWolfHunt, ReceiveAfterWolfHunt);
@@ -76,10 +76,9 @@ public class Moderator : MonoBehaviour
         ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, StartGame);
-        ActionEventHandler.AddNewActionEvent(ActionEventID.EndGame,EndGame);
 
 
-        PlayerUIController.GetInstance().NotificationTransition("Start Game In", () =>
+        PlayerUIController.GetInstance().NotificationTransition("Game will start in ...", () =>
         {
             ActionEventHandler.Invoke(ActionEventID.StartGame);
         });
@@ -114,8 +113,7 @@ public class Moderator : MonoBehaviour
         {
             isSecondPassed = false;
             PunEventHandler.QuickRaiseEvent(PunEventID.DiscusstionTimeCountdown, new object[] { disscustionTime }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-            StartCoroutine(DiscussionTimeCountdown(() =>
-            {
+            TimeManipulator.GetInstance().InvokeActionAfterSeconds(1f, () => {
                 Debug.Log("onOneSecondPassed");
                 disscustionTime -= 1f;
                 if (disscustionTime <= -1f)
@@ -123,13 +121,8 @@ public class Moderator : MonoBehaviour
                     PunEventHandler.RaiseEvent(PunEventID.NighttimeTransition, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
                 }
                 isSecondPassed = true;
-            }));
+            });
         }
-    }
-    IEnumerator DiscussionTimeCountdown(Action onOneSecondPassed)
-    {
-        yield return new WaitForSeconds(1f);
-        onOneSecondPassed();
     }
     private void ChooseNextActiveRole(RoleID roleOnAction)
     {
@@ -267,18 +260,18 @@ public class Moderator : MonoBehaviour
             actorID[i] = (byte) data[i*2 + 1];
         }
         listPlayerController.InitAllPlayerRole(playerID, actorID, () => {
-            PunEventHandler.QuickRaiseEvent(PunEventID.RoleReceiveSuccess, new object[] { true }, new RaiseEventOptions() { Receivers = ReceiverGroup.MasterClient }, SendOptions.SendReliable);
+            //PunEventHandler.QuickRaiseEvent(PunEventID.RoleReceiveSuccess, new object[] { true }, new RaiseEventOptions() { Receivers = ReceiverGroup.MasterClient }, SendOptions.SendReliable);
         });
     }
-    private void ReceiveRoleSuccess(EventData eventData)
-    {
-        receiveRoleSuccessCount++;
-        if(receiveRoleSuccessCount == PhotonNetwork.PlayerList.Length)
-        {
-            // Invoke Event
+    //private void ReceiveRoleSuccess(EventData eventData)
+    //{
+    //    receiveRoleSuccessCount++;
+    //    if(receiveRoleSuccessCount == PhotonNetwork.PlayerList.Length)
+    //    {
+    //        // Invoke Event
 
-        }
-    }
+    //    }
+    //}
     private void ReceiveAwakenRole(EventData eventData)
     {
         object[] data = (object[]) eventData.CustomData;
@@ -355,8 +348,11 @@ public class Moderator : MonoBehaviour
                 if (PhotonNetwork.IsMasterClient)
                     PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveEndGame, new object[] { sectWin }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
                 return;
-            }   
-            ActionEventHandler.Invoke(ActionEventID.NighttimeTransition);
+            }
+            PlayerUIController.GetInstance().NotificationTransition("Darkness is coming in ...", () =>
+            {
+                ActionEventHandler.Invoke(ActionEventID.NighttimeTransition);
+            });
         });
     }
     // Function receive end game call
@@ -366,6 +362,12 @@ public class Moderator : MonoBehaviour
         RoleExposition.SetSectWin((Sect)data[0]);
         RoleExposition.SetSurvivor(listPlayerController.GetListPlayerRole());
         ActionEventHandler.Invoke(ActionEventID.EndGame);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            TimeManipulator.GetInstance().InvokeActionAfterSeconds(3f, () => {
+                PhotonNetwork.LoadLevel("EndgameScene");
+            });
+        }
     }
     #endregion
 
@@ -387,18 +389,6 @@ public class Moderator : MonoBehaviour
         disscustionTime = discussionTimeDefault;
         isDayTime = false;
         isSetUpComplete = true;
-    }
-    private void EndGame()
-    {
-        if(PhotonNetwork.IsMasterClient)
-        {
-            StartCoroutine(EndGameInSeconds(3));
-        }
-    }
-    IEnumerator EndGameInSeconds(float time)
-    {
-        yield return new WaitForSeconds(time);
-        PhotonNetwork.LoadLevel("EndgameScene");
     }
     #endregion
 }

@@ -83,6 +83,10 @@ public class ListPlayerController : MonoBehaviour
                     }
                 }
             }
+            if (listPlayerRole[PhotonNetwork.LocalPlayer.ActorNumber].GetRoleID() == RoleID.wolf && CountNumberOfRole((role) => role.GetRoleID() == RoleID.wolf) == 2)
+            {
+                ActionEventHandler.Invoke(ActionEventID.TwoWolfInGame);
+            }
             // Load UI for local player
             onInitializeRole();
         }
@@ -130,7 +134,7 @@ public class ListPlayerController : MonoBehaviour
                 return null;
             listPlayerRole[playerID].SetIsKill(true);
         }
-        // Get death player by role cast ability
+        // Get death player by role cast ability/vote
         List<object> listDeathPlayer = new List<object>();
         foreach (var item in listPlayerRole)
         {
@@ -154,25 +158,12 @@ public class ListPlayerController : MonoBehaviour
         {
             try
             {
-                int playerID;
                 foreach (var item in data)
                 {
-                    playerID = (int)item;
-                    if (playerID == PhotonNetwork.LocalPlayer.ActorNumber)
-                    {
-                        isGhost = true;
-                        ActionEventHandler.Invoke(ActionEventID.AfterMyDeath);
-                    }
-                    RoleExposition.AddVictim(listPlayerRole[playerID]);
-                    listPlayerRole[playerID].MyDeath();
-                    listPlayerRole.Remove(playerID);
-                    listPlayerObject.Remove(playerID);
+                    RemoveDeathPlayer((int)item);
                 }
             }
-            catch (Exception)
-            {
-                //Debug.LogError("Error: " + exc.Message);
-            }
+            catch (Exception){}
         }
         listVoteBallot.Clear();
         onRemoveDeathPlayer();
@@ -181,7 +172,15 @@ public class ListPlayerController : MonoBehaviour
     {
         try
         {
+            if (playerID == PhotonNetwork.LocalPlayer.ActorNumber)
+            {
+                isGhost = true;
+                ActionEventHandler.Invoke(ActionEventID.AfterMyDeath);
+            }
+            RoleExposition.AddVictim(listPlayerRole[playerID]);
+            listPlayerRole[playerID].MyDeath();
             listPlayerRole.Remove(playerID);
+            listPlayerObject.Remove(playerID);
         }
         catch (Exception exc)
         {
@@ -280,9 +279,9 @@ public class ListPlayerController : MonoBehaviour
 
             if(PhotonNetwork.IsMasterClient)
             {
-                StartCoroutine(FakeReceiveRoleWakeUp(new System.Random().Next(5,20),() => {
+                TimeManipulator.GetInstance().InvokeActionAfterSeconds(new System.Random().Next(5, 20), () => {
                     PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, new object[] { roleID, null }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-                }));
+                });
             }
             return;
         }
@@ -308,11 +307,6 @@ public class ListPlayerController : MonoBehaviour
             Debug.LogError("Error: " + exc.Message);
         }
 
-    }
-    IEnumerator FakeReceiveRoleWakeUp(float fakeTime,Action onFakeReceiveRoleWakeUp)
-    {
-        yield return new WaitForSeconds(fakeTime);
-        onFakeReceiveRoleWakeUp();
     }
     // Function callback when player done action
     public void ReceiveCompleteActionRole(object[] data, Action OnCompleteActionRole)
