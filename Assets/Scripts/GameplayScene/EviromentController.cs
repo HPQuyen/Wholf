@@ -8,43 +8,47 @@ public class EviromentController : MonoBehaviour
     [SerializeField]
     private Animator globalLight = null;
     [SerializeField]
-    private GameObject moon = null;
-    //[SerializeField]
-    //private Animator moon = null;
+    private Animator background_D = null;
     #endregion
     #region Private Fields
-    private bool isDay;
+    private bool isDay = true;
     #endregion
 
     #region Monobehaviour Methods
     private void Start()
     {
-        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, NighttimeTransition);
+        ActionEventHandler.AddNewActionEvent(ActionEventID.StartGame, StartGame);
         ActionEventHandler.AddNewActionEvent(ActionEventID.DaytimeTransition, DaytimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.NighttimeTransition, NighttimeTransition);
         ActionEventHandler.AddNewActionEvent(ActionEventID.EndGame, EndGame);
     }
-    private void Update()
-    {
-        
-    }
+
     #endregion
-    
+    private void StartGame()
+    {
+        isDay = false;
+        globalLight.SetTrigger("Start");
+        fireAnim.SetTrigger("Start");
+        fireAnim.SetBool("IsDay", isDay);
+        globalLight.SetBool("IsDay", isDay);
+        background_D.Play("NighttimeTransition");
+    }
     private void DaytimeTransition()
     {
         isDay = true;
         fireAnim.SetBool("IsDay", isDay);
         globalLight.SetBool("IsDay", isDay);
+        background_D.Play("DaytimeTransition");
     }
     private void NighttimeTransition()
     {
         isDay = false;
         fireAnim.SetBool("IsDay", isDay);
         globalLight.SetBool("IsDay", isDay);
+        background_D.Play("NighttimeTransition");
     }
     private void EndGame()
     {
-        moon.SetActive(false);
         if (isDay)
             globalLight.Play("EndgameDay");
         else

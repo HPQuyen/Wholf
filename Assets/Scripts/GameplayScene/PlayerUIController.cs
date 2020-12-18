@@ -17,9 +17,9 @@ public class PlayerUIController : MonoBehaviour
     #endregion
     #region Private SerializeField
     [SerializeField]
-    private GameObject roleDescription = null;
+    private GameObject[] roleDescriptionPrefab = null;
     [SerializeField]
-    private TextMeshProUGUI cooldownMyTurn_Text = null;
+    private TextMeshProUGUI timer = null;
     [SerializeField]
     private Nameboard[] nameBoard = null;
     [SerializeField]
@@ -39,6 +39,7 @@ public class PlayerUIController : MonoBehaviour
     private static PlayerUIController instance = null;
     private ListPlayerController listPlayerController = null;
     private GameObject playerUI = null;
+    private GameObject roleDescription = null;
     private IRole playerRole = null;
     private bool isMyAbilityTurn = false;
     private bool isVoteTurn = false;
@@ -106,6 +107,7 @@ public class PlayerUIController : MonoBehaviour
             Debug.Log("Load UI");
             Debug.Log("My role: " + (RoleID)roleID);
             playerUI = playerUIPrefab[roleID];
+            roleDescription = roleDescriptionPrefab[roleID];
             playerUI.SetActive(true);
         }
         catch(Exception exc)
@@ -120,7 +122,7 @@ public class PlayerUIController : MonoBehaviour
     public void NotificationTransition(string content, Action onNotificationTransition)
     {
         notificationTransition_Text.gameObject.SetActive(true);
-        notificationTransition_Text.text = content.ToUpper();
+        notificationTransition_Text.text = content;
         StartCoroutine(NotificationTransition(3f,()=> {
             onNotificationTransition();
             notificationTransition_Text.gameObject.SetActive(false);
@@ -140,11 +142,11 @@ public class PlayerUIController : MonoBehaviour
     }
     public void SetActiveCooldownTime(bool state)
     {
-        cooldownMyTurn_Text.gameObject.SetActive(state);
+        timer.gameObject.SetActive(state);
     }
     public void SetCooldownTime(string time)
     {
-        cooldownMyTurn_Text.text = time;
+        timer.text = time;
     }
 
     public void AddRoleEffect(RoleID roleID, int playerID,PotionType type = PotionType.kill,bool state = true)

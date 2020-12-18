@@ -1,7 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +14,7 @@ public class Cupid : Villager
         sect = Sect.villagers;
         target = new List<IRole>();
         animHandler = GetComponent<AnimationHandler>();
+        
     }
 
     public override void CastAbility(IRole opponent, PotionType type)
@@ -41,8 +41,15 @@ public class Cupid : Villager
         target.Add(target2);
         target1.SetSect(Sect.cupid);
         target2.SetSect(Sect.cupid);
+        if(PhotonNetwork.LocalPlayer.ActorNumber == target1.GetPlayerID() || PhotonNetwork.LocalPlayer.ActorNumber == target2.GetPlayerID())
+        {
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target1.GetPlayerID());
+            PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target2.GetPlayerID());
+            ActionEventHandler.Invoke(ActionEventID.InCupidPairing);
+            return;
+        }
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || PhotonNetwork.LocalPlayer.ActorNumber == target1.GetPlayerID() || PhotonNetwork.LocalPlayer.ActorNumber == target2.GetPlayerID() || myRole != null && myRole.IsMyRole(RoleID.cupid))
+        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.cupid))
         {
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target1.GetPlayerID());
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target2.GetPlayerID());
