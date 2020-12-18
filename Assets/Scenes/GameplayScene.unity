@@ -775,6 +775,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1427883702}
+    - target: {fileID: 834491299, guid: 34e819c70f074e448befeaf52d49cc1e, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
+      objectReference: {fileID: 0}
     - target: {fileID: 1133997797, guid: 34e819c70f074e448befeaf52d49cc1e, type: 3}
       propertyPath: m_fontSize
       value: 35
@@ -1825,6 +1829,10 @@ PrefabInstance:
     - target: {fileID: 69129464, guid: 32bcdb05e625e5c4fb1b02ca1754c61b, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 69129466, guid: 32bcdb05e625e5c4fb1b02ca1754c61b, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
       objectReference: {fileID: 0}
     - target: {fileID: 851518625, guid: 32bcdb05e625e5c4fb1b02ca1754c61b, type: 3}
       propertyPath: m_fontSize
@@ -5386,6 +5394,11 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 8198258297982669827, guid: 6b97963758b7d894fa0635d79f97adce,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6b97963758b7d894fa0635d79f97adce, type: 3}
 --- !u!1 &970753793 stripped
@@ -5416,6 +5429,10 @@ PrefabInstance:
     - target: {fileID: 1020235273, guid: dd815c21e5ff36949b7751e82215e848, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1020235275, guid: dd815c21e5ff36949b7751e82215e848, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
       objectReference: {fileID: 0}
     - target: {fileID: 1290069309, guid: dd815c21e5ff36949b7751e82215e848, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -8132,7 +8149,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -198.5, y: 249.99994}
+  m_AnchoredPosition: {x: -198.5, y: 249.99992}
   m_SizeDelta: {x: 397, y: 649.88306}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1427883697
@@ -8754,6 +8771,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4961827996397370345, guid: 4c168b810993cc04295d25954d9e78b2,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5365610915017993021, guid: 4c168b810993cc04295d25954d9e78b2,
         type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -8779,6 +8801,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1427883702}
+    - target: {fileID: 8850096732118844809, guid: 4c168b810993cc04295d25954d9e78b2,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4c168b810993cc04295d25954d9e78b2, type: 3}
 --- !u!1 &1470642207 stripped
@@ -8940,6 +8967,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1427883701}
     m_Modifications:
+    - target: {fileID: 150483383, guid: 2528203b772362542bf713f809b01ddd, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
+      objectReference: {fileID: 0}
     - target: {fileID: 1462278490, guid: 2528203b772362542bf713f809b01ddd, type: 3}
       propertyPath: m_fontSize
       value: 35
@@ -9664,6 +9695,10 @@ PrefabInstance:
     - target: {fileID: 1380421281, guid: c5efe912535c0dc458acbcb8614caef5, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1380421283, guid: c5efe912535c0dc458acbcb8614caef5, type: 3}
+      propertyPath: m_Color.a
+      value: 0.5882353
       objectReference: {fileID: 0}
     - target: {fileID: 1385208625, guid: c5efe912535c0dc458acbcb8614caef5, type: 3}
       propertyPath: m_fontSize
@@ -11327,8 +11362,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 776911413}
   m_HandleRect: {fileID: 776911412}
   m_Direction: 2
-  m_Value: 1.0000001
-  m_Size: 0.35355622
+  m_Value: 1.0000004
+  m_Size: 0.3846846
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -12031,7 +12066,7 @@ PrefabInstance:
     - target: {fileID: 3831553975023427170, guid: 4d14094277302a74abfc5841c6549fca,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000030517578
+      value: 0.59724426
       objectReference: {fileID: 0}
     - target: {fileID: 4189503691019466799, guid: 4d14094277302a74abfc5841c6549fca,
         type: 3}
