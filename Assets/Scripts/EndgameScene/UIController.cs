@@ -48,7 +48,7 @@ namespace Wholf.EndgameScene
                     isRoleExist = true;
                     playerName_Text[position].text += PhotonNetwork.CurrentRoom.Players[item.Value.GetPlayerID()].NickName + "(survivor)";
                     if (item.Value.GetSect() == Sect.cupid)
-                        playerName_Text[position].text += "(Pair) ";
+                        playerName_Text[position].text += "(pair) ";
                     else
                         playerName_Text[position].text += " ";
                 }
@@ -61,7 +61,7 @@ namespace Wholf.EndgameScene
                     isRoleExist = true;
                     playerName_Text[position].text += PhotonNetwork.CurrentRoom.Players[item.Value.GetPlayerID()].NickName;
                     if (item.Value.GetSect() == Sect.cupid)
-                        playerName_Text[position].text += "(Pair) ";
+                        playerName_Text[position].text += "(pair) ";
                     else
                         playerName_Text[position].text += " ";
                 }

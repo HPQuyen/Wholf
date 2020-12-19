@@ -102,7 +102,7 @@ public class Wolf : MonoBehaviour, IRole
         int opponentID = (int)data[2];
         IRole target = ListPlayerController.GetInstance().GetRole(opponentID);
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.wolf))
+        if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.wolf))
         {
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.wolf, target.GetPlayerID());
         }

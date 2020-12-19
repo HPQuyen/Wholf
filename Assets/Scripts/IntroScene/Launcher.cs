@@ -156,10 +156,11 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.Log("Failed to join room: " + message);
+        UIcontroller.DisplayError("RoomID does not exist");
     }
     public override void OnConnected()
     {
-        Debug.Log("Connected to Server");
+        UIcontroller.DisplayError("Connect to server");
         Debug.Log(PhotonNetwork.GetPing());
         Debug.Log(PhotonNetwork.Server);
         Debug.Log(PhotonNetwork.ServerAddress);

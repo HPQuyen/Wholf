@@ -49,7 +49,7 @@ public class Witch : Villager
             target.SetIsKill(type == PotionType.kill);
             // call update UI effect
             IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-            if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.witch))
+            if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.witch))
             {
                 PlayerUIController.GetInstance().AddRoleEffect(RoleID.witch, target.GetPlayerID(), type);
             }

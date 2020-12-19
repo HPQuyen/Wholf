@@ -38,7 +38,7 @@ public class ListPlayerController : MonoBehaviour
     private Dictionary<int, IRole> listPlayerRole = new Dictionary<int, IRole>();
     private Dictionary<int, int> listVoteBallot = new Dictionary<int, int>();
 
-    private static bool isGhost = false;
+    private bool isGhost = false;
     #endregion
 
     #region Monobehavior Methods
@@ -47,7 +47,7 @@ public class ListPlayerController : MonoBehaviour
         if (instance == null)
             instance = this;
         else if (instance != this)
-            Destroy(this.gameObject);
+            Destroy(gameObject);
     }
     public static ListPlayerController GetInstance()
     {
@@ -245,7 +245,7 @@ public class ListPlayerController : MonoBehaviour
         }
         return role;
     }
-    public static bool IsGhostView()
+    public bool IsGhostView()
     {
         return isGhost;
     }

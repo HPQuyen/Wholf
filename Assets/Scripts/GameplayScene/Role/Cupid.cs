@@ -49,7 +49,7 @@ public class Cupid : Villager
             return;
         }
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.cupid))
+        if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.cupid))
         {
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target1.GetPlayerID());
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.cupid, target2.GetPlayerID());

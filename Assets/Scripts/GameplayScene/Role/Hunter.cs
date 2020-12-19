@@ -37,7 +37,7 @@ public class Hunter : Villager
         target = ListPlayerController.GetInstance().GetRole((int)data[2]);
         // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.hunter))
+        if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.hunter))
         {
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.hunter, target.GetPlayerID());
         }

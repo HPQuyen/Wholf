@@ -366,7 +366,7 @@ public class PlayerUIController : MonoBehaviour
     }
     private void InVoteTurn()
     {
-        if(!ListPlayerController.IsGhostView())
+        if(!listPlayerController.IsGhostView())
             isVoteTurn = true;
     }
     private void CompleteVoteTurn()

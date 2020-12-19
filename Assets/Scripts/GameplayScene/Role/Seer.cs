@@ -30,7 +30,7 @@ public class Seer : Villager
 
         // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.seer))
+        if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.seer))
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.seer, target.GetPlayerID(), PotionType.kill, target.IsMyRole(RoleID.wolf));
         
         target = null;

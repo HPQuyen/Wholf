@@ -68,6 +68,7 @@ namespace Wholf.LoginScene
         public void DisplayError(string ErrorMsg)
         {
             warningText.text = ErrorMsg;
+            TimeManipulator.GetInstance().InvokeActionAfterSeconds(3f, () => { warningText.text = ""; });
         }
 
 

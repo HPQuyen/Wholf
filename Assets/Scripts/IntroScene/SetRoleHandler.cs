@@ -35,7 +35,10 @@ public class SetRoleHandler : MonoBehaviour
         }
 
         if (sum < 5)
+        {
+            UIController.GetInstance().DisplayError("Minimum players is 5");
             return false;
+        }
         else
             return true;
     }

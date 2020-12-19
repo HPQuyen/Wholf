@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class UIController : MonoBehaviour
 {
     #region Private Fields SerializeFields
+    [SerializeField]
+    private TextMeshProUGUI errorMessage = null;
+    [Space(10)]
     [Header("========== Panel Lobby ==========")]
     /* ##################################################
     *  #                Panel Lobby Fields              #
@@ -33,8 +36,18 @@ public class UIController : MonoBehaviour
     private TMP_InputField namePlayer_Input = null;
     [SerializeField]
     private TMP_InputField roomID_Input = null;
+    /* ##################################################
+     * #                Panel Settings Fields               #
+     * ################################################## */
+    [Space(10)]
+    [Header("========== Panel Settings ==========")]
     [SerializeField]
     private GameObject panelSettings = null;
+    /* ##################################################
+     * #                Panel SetRole Fields               #
+     * ################################################## */
+    [Space(10)]
+    [Header("========== Panel Set Role ==========")]
     [SerializeField]
     private GameObject panelSetRole = null;
     #endregion
@@ -100,6 +113,11 @@ public class UIController : MonoBehaviour
     {
         foreach (var item in roomID_Display)
             item.text = ("ID: " + roomID);
+    }
+    public void DisplayError(string errorMessage)
+    {
+        this.errorMessage.text = errorMessage;
+        TimeManipulator.GetInstance().InvokeActionAfterSeconds(3f, () => { this.errorMessage.text = ""; });
     }
     public string GetNamePlayer()
     {

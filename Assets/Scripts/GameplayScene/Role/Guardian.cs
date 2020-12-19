@@ -31,7 +31,7 @@ public class Guardian : Villager
         target.SetIsKill(false);
         // call update UI effect
         IRole myRole = ListPlayerController.GetInstance().GetRole(PhotonNetwork.LocalPlayer.ActorNumber);
-        if (ListPlayerController.IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.guardian))
+        if (ListPlayerController.GetInstance().IsGhostView() || myRole != null && myRole.IsMyRole(RoleID.guardian))
             PlayerUIController.GetInstance().AddRoleEffect(RoleID.guardian, target.GetPlayerID());
         target = null;
     }
