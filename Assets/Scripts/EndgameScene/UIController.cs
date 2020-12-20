@@ -79,10 +79,14 @@ namespace Wholf.EndgameScene
             RoleExposition.ClearAll();
             ActionEventHandler.RemoveAllAction();
             PunEventHandler.RemoveAllEvent();
-            SceneManager.LoadScene("IntroScene");
+            TimeManipulator.GetInstance().InvokeActionAfterSeconds(1f, () => {
+                SceneManager.LoadScene("IntroScene");
+            });
+
         }
         public void OnClick_Exit()
         {
+            PlayerProfile.SignOut();
             PhotonNetwork.Disconnect();
             Application.Quit();
         }

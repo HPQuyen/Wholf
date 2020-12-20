@@ -12,24 +12,24 @@ public enum PotionType
 
 public class Witch : Villager
 {
-    protected Stack<IRole> target;
+    protected Queue<IRole> target;
 
-    private Stack<PotionType> atype;
+    private Queue<PotionType> atype;
     private int timesActivation;
     protected override void Start()
     {
         timesActivation = 0;
         roleID = RoleID.witch;
         sect = Sect.villagers;
-        target = new Stack<IRole>();
-        atype = new Stack<PotionType>();
+        target = new Queue<IRole>();
+        atype = new Queue<PotionType>();
         animHandler = GetComponent<AnimationHandler>();
     }
 
     public override void CastAbility(IRole opponent, PotionType type)
     {
-        target.Push(opponent);
-        atype.Push(type);
+        target.Enqueue(opponent);
+        atype.Enqueue(type);
         PlayerUIController.GetInstance().OnClick_Cancel();
         // Raise event to Moderator
         if (target.Count == 2 || timesActivation == 1)
@@ -66,8 +66,8 @@ public class Witch : Villager
             data.Add(playerID);
             while(target.Count != 0)
             {
-                data.Add(target.Pop().GetPlayerID());
-                data.Add(atype.Pop());
+                data.Add(target.Dequeue().GetPlayerID());
+                data.Add(atype.Dequeue());
             }
         }
         PunEventHandler.QuickRaiseEvent(PunEventID.RoleActionComplete, data.ToArray(), new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
