@@ -35,16 +35,15 @@ public class NetworkHandler : MonoBehaviourPunCallbacks
         IRole role = ListPlayerController.GetInstance().GetRole(otherPlayer.ActorNumber);
         if (role != null)
         {
-            RoleExposition.AddVictim(role);
             ListPlayerController.GetInstance().RemoveDeathPlayer(role.GetPlayerID());
         }
-        //if (PhotonNetwork.IsMasterClient)
-        //{
-        //    if (Moderator.GetInstance().IsEndGame(out Sect sectWin))
-        //    {
-        //        PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveEndGame, new object[] { sectWin }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
-        //    }
-        //}
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (Moderator.GetInstance().IsEndGame(out Sect sectWin))
+            {
+                PunEventHandler.QuickRaiseEvent(PunEventID.ReceiveEndGame, new object[] { sectWin }, new RaiseEventOptions() { Receivers = ReceiverGroup.All }, SendOptions.SendReliable);
+            }
+        }
 
     }
     public override void OnLeftRoom()

@@ -29,6 +29,7 @@ public interface IRole
     int GetTimeRoleAction();
     int GetPlayerID();
     bool GetIsKill();
+    string GetPlayerName();
     RoleID GetRoleID();
     IRole GetTarget();
     Sect GetSect();
@@ -36,5 +37,6 @@ public interface IRole
     void SetIsSelectable(bool state);
     void SetIsKill(bool state);
     void SetSect(Sect sect);
+    void SetPlayerName(string name);
     #endregion
 }

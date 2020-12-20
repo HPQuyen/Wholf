@@ -9,7 +9,7 @@ public class Villager : MonoBehaviour, IRole
     protected int playerID { get; set; }
     protected bool isKill { get; set; }
     protected bool isSelectable { get; set; }
-
+    protected string playerName;
     protected AnimationHandler animHandler;
 
     [SerializeField]
@@ -29,10 +29,6 @@ public class Villager : MonoBehaviour, IRole
         sect = Sect.villagers;
         roleID = RoleID.villager;
         animHandler = GetComponent<AnimationHandler>();
-    }
-    protected virtual void Update()
-    {
-
     }
     public virtual void OnMouseDown()
     {
@@ -87,6 +83,10 @@ public class Villager : MonoBehaviour, IRole
     {
         return sect;
     }
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
     public void SetPlayerID(int playerID)
     {
         this.playerID = playerID;
@@ -103,6 +103,10 @@ public class Villager : MonoBehaviour, IRole
     public void SetSect(Sect sect)
     {
         this.sect = sect;
+    }
+    public void SetPlayerName(string name)
+    {
+        playerName = name;
     }
     #endregion
 

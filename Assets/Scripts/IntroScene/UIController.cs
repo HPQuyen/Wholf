@@ -16,7 +16,7 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private GameObject panelLobby = null;
     [SerializeField]
-    private TextMeshProUGUI[] roomID_Display = null;
+    private TextMeshProUGUI roomID_Display = null;
     [SerializeField]
     private TextMeshProUGUI[] namePlayer_Display = null;
     [SerializeField]
@@ -97,6 +97,14 @@ public class UIController : MonoBehaviour
     {
         startButton.SetActive(state);
     }
+    public void SetActivePanelSetRole(bool state)
+    {
+        panelSetRole.SetActive(state);
+    }
+    public void SetActivePanelSettings(bool state)
+    {
+        panelSettings.SetActive(state);
+    }
     public void DisplayNamePlayer(int index, string namePlayer,Color color)
     {
         try
@@ -111,8 +119,7 @@ public class UIController : MonoBehaviour
     }
     public void DisplayRoomID(string roomID)
     {
-        foreach (var item in roomID_Display)
-            item.text = ("ID: " + roomID);
+        roomID_Display.text = ("ID: " + roomID);
     }
     public void DisplayError(string errorMessage)
     {
@@ -131,51 +138,55 @@ public class UIController : MonoBehaviour
     public void OnCreateRoom(string roomID)
     {
         SetActivePanelMenu(false);
-        panelSetRole.SetActive(true);
-        panelSettings.SetActive(false);
+        SetActivePanelSetRole(false);
+        SetActivePanelSettings(false);
+        SetActivePanelLobby(true);
+        SetActiveStartButton(true);
         DisplayRoomID(roomID);
     }
     public void OnJoinRoom()
     {
         SetActivePanelMenu(false);
         SetActivePanelLobby(true);
-        panelSettings.SetActive(false);
+        SetActivePanelSettings(false);
         DisplayRoomID(GetRoomID());
     }
     public void OnLeaveRoom()
     {
         SetActivePanelLobby(false);
-        SetActivePanelMenu(true);
-        panelSetRole.SetActive(false);
+        SetActivePanelSetRole(false);
         SetActiveStartButton(false);
-        panelSettings.SetActive(false);
+        SetActivePanelSettings(false);
+        SetActivePanelMenu(true);
     }
 
-    public void OnClick_Apply(string roomID)
+    public void OnApplyCreateRoom(Action<int> OnCompleteApplyCreateRoom)
     {
-        if (setRoleHandler.CheckNumber())
+        if (!setRoleHandler.CheckNumber())
         {
-            roleDelivery.cupid = (byte)setRoleHandler.GetValue(RoleID.cupid);
-            roleDelivery.wolf = (byte)setRoleHandler.GetValue(RoleID.wolf);
-            roleDelivery.witch = (byte)setRoleHandler.GetValue(RoleID.witch);
-            roleDelivery.hunter = (byte)setRoleHandler.GetValue(RoleID.hunter);
-            roleDelivery.villager = (byte)setRoleHandler.GetValue(RoleID.villager);
-            roleDelivery.guardian = (byte)setRoleHandler.GetValue(RoleID.guardian);
-            roleDelivery.seer = (byte)setRoleHandler.GetValue(RoleID.seer);
-
-            SetActivePanelMenu(false);
-            panelSetRole.SetActive(false);
-            SetActivePanelLobby(true);
-            SetActiveStartButton(true);
-            panelSettings.SetActive(false);
-            DisplayRoomID(roomID);
+            DisplayError("Minimum players is 5");
+            //return;
         }
+        roleDelivery.cupid = (byte)setRoleHandler.GetValue(RoleID.cupid);
+        roleDelivery.wolf = (byte)setRoleHandler.GetValue(RoleID.wolf);
+        roleDelivery.witch = (byte)setRoleHandler.GetValue(RoleID.witch);
+        roleDelivery.hunter = (byte)setRoleHandler.GetValue(RoleID.hunter);
+        roleDelivery.villager = (byte)setRoleHandler.GetValue(RoleID.villager);
+        roleDelivery.guardian = (byte)setRoleHandler.GetValue(RoleID.guardian);
+        roleDelivery.seer = (byte)setRoleHandler.GetValue(RoleID.seer);
+
+        OnCompleteApplyCreateRoom.Invoke(setRoleHandler.CountNumberOfRole());
+        
     }
 
     public void OnClick_Setting()
     {
-        panelSettings.SetActive(!panelSettings.activeSelf);
+        SetActivePanelSettings(!panelSettings.activeSelf);
     }
-
+    public void OnClick_CreateRoom()
+    {
+        SetActivePanelSetRole(true);
+        SetActivePanelMenu(false);
+    }
     #endregion
 }

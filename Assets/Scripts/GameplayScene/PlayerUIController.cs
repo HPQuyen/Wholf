@@ -276,11 +276,10 @@ public class PlayerUIController : MonoBehaviour
         if (!isMyAbilityTurn)
             return;
         RoleCastAction();
-
         listPlayerController.SetAllSelectable(role => playerRole.GetPlayerID() != role.GetPlayerID(), true);
+        Button currentButton = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
-            Debug.Log(EventSystem.current.currentSelectedGameObject);
-            EventSystem.current.currentSelectedGameObject.GetComponent<Button>().interactable = false;
+            currentButton.interactable = false;
             playerRole.CastAbility(obj, PotionType.kill);
         });
     }
@@ -290,9 +289,9 @@ public class PlayerUIController : MonoBehaviour
             return;
         RoleCastAction();
         listPlayerController.SetAllSelectable(listPlayerController.GetListPlayerSurvivor(),true);
+        Button currentButton = EventSystem.current.currentSelectedGameObject.GetComponent<Button>();
         ActionEventHandler.AddNewActionEvent((IRole obj) => {
-            Debug.Log(EventSystem.current.currentSelectedGameObject);
-            EventSystem.current.currentSelectedGameObject.GetComponent<Button>().interactable = false;
+            currentButton.interactable = false;
             playerRole.CastAbility(obj, PotionType.rescue);
         });
     }

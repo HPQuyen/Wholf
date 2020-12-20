@@ -52,11 +52,8 @@ public class PunEventHandler : MonoBehaviour
         {
             if (eventListener.TryGetValue(eventID, out Func<object[]> func))
             {
-                Debug.Log(func);
                 PhotonNetwork.RaiseEvent(eventID, func.Invoke(), raiseEventOptions, sendOptions);
             }
-            else
-                Debug.Log(func);
         }
         catch (Exception exc)
         {

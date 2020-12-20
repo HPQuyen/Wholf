@@ -16,7 +16,15 @@ public class SetRoleHandler : MonoBehaviour
             RoleNumber[(int)roleID].text = RoleLst[roleID].ToString();
         }
     }
-
+    public int CountNumberOfRole()
+    {
+        int sum = 0;
+        foreach (var item in RoleLst)
+        {
+            sum += item.Value;
+        }
+        return sum;
+    }
     public int GetValue(RoleID roleID)
     {
         if (!RoleLst.ContainsKey(roleID))
@@ -27,16 +35,10 @@ public class SetRoleHandler : MonoBehaviour
 
     public bool CheckNumber()
     {
-        int sum = 0;
-
-        foreach(var item in RoleLst)
-        {
-            sum += item.Value;
-        }
+        int sum = CountNumberOfRole();
 
         if (sum < 5)
         {
-            UIController.GetInstance().DisplayError("Minimum players is 5");
             return false;
         }
         else

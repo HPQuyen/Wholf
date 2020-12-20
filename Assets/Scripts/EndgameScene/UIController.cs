@@ -46,7 +46,8 @@ namespace Wholf.EndgameScene
                 if (item.Value.GetRoleID() == roleID)
                 {
                     isRoleExist = true;
-                    playerName_Text[position].text += PhotonNetwork.CurrentRoom.Players[item.Value.GetPlayerID()].NickName + "(survivor)";
+                    
+                    playerName_Text[position].text += item.Value.GetPlayerName() + "(survivor)";
                     if (item.Value.GetSect() == Sect.cupid)
                         playerName_Text[position].text += "(pair) ";
                     else
@@ -59,7 +60,7 @@ namespace Wholf.EndgameScene
                 if (item.Value.IsMyRole(roleID))
                 {
                     isRoleExist = true;
-                    playerName_Text[position].text += PhotonNetwork.CurrentRoom.Players[item.Value.GetPlayerID()].NickName;
+                    playerName_Text[position].text += item.Value.GetPlayerName();
                     if (item.Value.GetSect() == Sect.cupid)
                         playerName_Text[position].text += "(pair) ";
                     else

@@ -14,6 +14,7 @@ public class Wolf : MonoBehaviour, IRole
     protected bool isKill;
     protected int playerID;
     protected bool isSelectable;
+    protected string playerName;
     protected AnimationHandler animHandler;
     [SerializeField]
     protected RoleInformation roleInfo;
@@ -32,10 +33,6 @@ public class Wolf : MonoBehaviour, IRole
         roleID = RoleID.wolf;
         target = null;
         animHandler = GetComponent<AnimationHandler>();
-    }
-    protected virtual void Update()
-    {
-
     }
 
     public virtual void OnMouseDown()
@@ -135,6 +132,10 @@ public class Wolf : MonoBehaviour, IRole
     {
         return sect;
     }
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
     public void SetPlayerID(int playerID)
     {
         this.playerID = playerID;
@@ -152,6 +153,10 @@ public class Wolf : MonoBehaviour, IRole
     public void SetSect(Sect sect)
     {
         this.sect = sect;
+    }
+    public void SetPlayerName(string name)
+    {
+        playerName = name;
     }
     #endregion
 

@@ -10,6 +10,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     #endregion
 
     #region Private Fields
+    private const byte MAX_PLAYER = 8; 
     private UIController UIcontroller = null;
     private string roomID = string.Empty;
     private byte maxPlayerOnRoom = 8;
@@ -39,34 +40,53 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void OnClick_HostRoom()
     {
         if (UIcontroller.GetNamePlayer() == "")
-            return;
-        if (!PhotonNetwork.IsConnectedAndReady)
-            return;
-        roomID = Random.Range(1000000000, int.MaxValue).ToString();
-        RoomOptions roomOption = new RoomOptions
         {
-            MaxPlayers = maxPlayerOnRoom,
-            IsOpen = true,
-            IsVisible = true,
-            PublishUserId = true
-        };
-        PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
-        PhotonNetwork.CreateRoom(roomID, roomOption);
-        
+            UIcontroller.DisplayError("What is your name?");
+            return;
+        }
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            UIcontroller.DisplayError("Connecting to server failed");
+            return;
+        }
+        UIcontroller.OnClick_CreateRoom();
     }
     public void OnClick_JoinRoom()
     {
         if (UIcontroller.GetNamePlayer() == "")
+        {
+            UIcontroller.DisplayError("What is your name?");
             return;
+        }
         if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            UIcontroller.DisplayError("Connecting to server failed");
             return;
+        }
+        if (UIcontroller.GetRoomID().Equals(""))
+        {
+            UIcontroller.DisplayError("RoomID is empty!");
+            return;
+        }
         PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
         PhotonNetwork.JoinRoom(UIcontroller.GetRoomID());
     }
 
     public void OnClick_Apply()
     {
-        UIcontroller.OnClick_Apply(roomID);
+        UIcontroller.OnApplyCreateRoom((maxPlayer) => {
+            roomID = Random.Range(1000000000, int.MaxValue).ToString();
+            maxPlayerOnRoom = (byte)maxPlayer;
+            RoomOptions roomOption = new RoomOptions
+            {
+                MaxPlayers = maxPlayerOnRoom,
+                IsOpen = true,
+                IsVisible = true,
+                PublishUserId = true
+            };
+            PhotonNetwork.NickName = UIcontroller.GetNamePlayer();
+            PhotonNetwork.CreateRoom(roomID, roomOption);
+        });
     }
 
     public void OnClick_Settings()
@@ -79,6 +99,11 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnClick_StartGame()
     {
+        if(PhotonNetwork.PlayerList.Length < maxPlayerOnRoom)
+        {
+            UIcontroller.DisplayError("Can't start a match, not enough players");
+            return;
+        }
         PhotonNetwork.CurrentRoom.IsOpen = false;
         if (PhotonNetwork.IsMasterClient)
             PhotonNetwork.LoadLevel("GameplayScene");
@@ -103,7 +128,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         if(!PhotonNetwork.IsMasterClient)
             UIcontroller.OnJoinRoom();
         
-        for (int i = 0; i < maxPlayerOnRoom; i++)
+        for (int i = 0; i < MAX_PLAYER; i++)
         {
             if (i < PhotonNetwork.PlayerList.Length)
             {
@@ -134,7 +159,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         {
             UIcontroller.SetActiveStartButton(true);
         }
-        for (int i = 0; i < maxPlayerOnRoom; i++)
+        for (int i = 0; i < MAX_PLAYER; i++)
         {
             if(i < PhotonNetwork.PlayerList.Length)
             {
@@ -155,8 +180,16 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
+        Debug.Log("Return Code: " + returnCode);
         Debug.Log("Failed to join room: " + message);
-        UIcontroller.DisplayError("RoomID does not exist");
+        if(returnCode == 32758)
+        {
+            UIcontroller.DisplayError("The room does not exist anymore");
+        }
+        else
+        {
+            UIcontroller.DisplayError("The room is full");
+        }
     }
     public override void OnConnected()
     {

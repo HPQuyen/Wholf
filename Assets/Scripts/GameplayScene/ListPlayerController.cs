@@ -464,6 +464,7 @@ public class ListPlayerController : MonoBehaviour
             }
             // Set player ID
             playerRoleRef.SetPlayerID(playerID);
+            playerRoleRef.SetPlayerName(PhotonNetwork.CurrentRoom.Players[playerID].NickName);
             // Set sorting layer 
             playerObjectRef.GetComponent<SpriteRenderer>().sortingLayerID = characterSpawnPosition[spawnPosition].GetComponent<SpriteRenderer>().sortingLayerID;
         }
